@@ -7,6 +7,7 @@ mongoose.connect('mongodb://localhost:27017/linknote', {
 .then(() => {
   console.log('链接成功')
 }).catch(err => {
-  const dbErr = new DBError(err)
-  console.log(dbErr)
+  // const dbErr = new DBError(err)
+  // console.log(dbErr)
+  console.log(err)
 })

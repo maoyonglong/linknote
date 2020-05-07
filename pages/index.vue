@@ -1,39 +1,29 @@
 <template>
-  <div class="container">
+  <div class="wrap">
+    <v-header></v-header>
     <div>
       <logo />
-      <h1 class="title">
-        ntce
-      </h1>
       <h2 class="subtitle">
-        Welcome to the iView + Nuxt.js template
+        欢迎使用林克笔记
       </h2>
-      <div class="links">
-        <Button type="primary" target="_blank" to="https://nuxtjs.org/">
-          Documentation
-        </Button>
-        <Button target="_blank" to="https://github.com/nuxt/nuxt.js">
-          GitHub
-        </Button>
-        <Button target="_blank" to="https://www.iviewui.com/">
-          iView
-        </Button>
-      </div>
     </div>
   </div>
 </template>
 
 <script>
 import Logo from '~/components/Logo.vue'
+import VHeader from '~/components/Header'
+
 export default {
   components: {
-    Logo
+    Logo,
+    VHeader
   }
 }
 </script>
 
 <style>
-.container {
+.wrap {
   margin: 0 auto;
   min-height: 100vh;
   display: flex;

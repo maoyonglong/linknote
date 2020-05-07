@@ -1,87 +1,90 @@
 import articleModel from '../model/article'
 import {Router} from 'express'
-import {action} from './common'
 import auth from '../middleware/auth'
 // import rbac from '../middleware/rbac'
-// import {Types} from 'mongoose'
+import {Types} from 'mongoose'
+import articleModel from '../model/article'
 
 const router = new Router()
 
-const parseAction = function (req, res, next) {
-  const method = req.method
+const isOwner = async function (req, res, next) {
+  const uid = req.userDoc._id
+  const doc = await articleModel.aggregate([
+    {
+      $lookup: {
+        from: 'folders',
+        localField: 'folder_id',
+        foreignField: '_id',
+        as: 'folder'
+      }
+    }
+  ])[0]
 
-  console.log(method)
+  const docUid = doc.folder.folder.uid
+  req.owner = {
+    flag: docUid.toString() === uid.toString(),
+    doc
+  }
+
   next()
 }
 
-router.post('/api/article/a/:aid', auth(), parseAction, function (req, res) {
-  res.send(1)
+router.post('/api/article', auth(), isOwner, function (req, res) {
+  const action = req.body.action
+  const aid = req.body.aid
+  const isOwner = req.owner.flag
+
+  const executions = {
+
+  }
 })
 
-// const executions = {
-//   "get:read": async (req, role) => {
-//     const doc = await articleModel.findById(Types.ObjectId(req.params.aid))
-//     const type = req.query.type
+router.get('/api/article/read/:aid', auth(), isOwner, async function (req, res) {
+  const aid = req.params.aid
+  const isOwner = req.owner.flag
 
-//     if (role === 'admin') return doc
+  const doc = await articleModel.findById(Types.ObjectId(aid))
 
-//     // 确保文章已发布
-//     if (type === 'publish' && !doc.publish) {
-//       return Promise.reject({
-//         code: -1,
-//         status: 422,
-//         msg: '文章未发布'
-//       })
-//     }
+  if (!doc) {
+    res.status(404)
+  }
 
-//     let canRead = true
+  if (!doc.publish) {
+    return Promise.reject({
+      code: -1,
+      msg: '文章未发布',
+      err: new Error('no publish.')
+    })
+  }
 
-//     function hasRight () {
-//       if (role === 'visitor') {
-//         const secret = doc.secret
-//         const uid = req.userDoc ? req.userDoc._id : null
+  res.send({
+    code: 0,
+    msg: '请求成功！',
+    result: {
+      doc,
+      owner: isOwner
+    }
+  })
+})
 
-//         // 如果不是公开的，要判断权限，需要uid
-//         if (secret !== 'public' && !uid) return false
+router.get('/api/article/write', auth(true), async function (req, res) {
+  const aid = req.query.aid
+  const doc = await articleModel.findById(Types.ObjectId(aid))
+  res.send({
+    code: 0,
+    msg: '请求成功！',
+    result: doc
+  })
+})
 
-//         if (secret === 'private') return false
-
-//         if (secret === 'followed') {
-
-//         }
-
-//         if (secret === 'some') {
-
-//         }
-//       }
-
-//       return true
-//     }
-
-//     canRead = hasRight()
-
-//     // owner
-//     return canRead ? doc : Promise.reject({
-//       code: -1,
-//       status: 422,
-//       msg: '无权限访问'
-//     })
-//   },
-//   "post:save": req => () => {
-
-//   },
-//   "post:publish": req => () => {}
-// }
-
-// const roleCondition = async req => {
-//   const aid = Types.ObjectId(req.params.aid) // article_id
-//   const uid = req.userDoc ? req.userDoc._id : null
-
-//   return uid &&
-//     doc.uid.toString() === await articleModel.findById(aid).toString()
-//     ? 'owner' : 'visitor'
-// }
-
-// router.use('/api/article/a/:aid', auth(), rbac, action(executions, roleCondition))
+router.get('/api/article/list', auth(), isOwner, async function (req, res) {
+  const uid = req.userDoc._id
+  const docs = await articleModel.find({uid})
+  res.send({
+    code: 0,
+    msg: '请求成功！',
+    result: docs
+  })
+})
 
 export default router

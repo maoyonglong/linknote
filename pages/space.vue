@@ -23,6 +23,7 @@
         </Layout>
       </Layout>
     </Layout>
+    <Spin v-if="loading" fix size="large"></Spin>
   </div>
 </template>
 <script>

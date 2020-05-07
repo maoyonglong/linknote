@@ -1,6 +1,7 @@
 <template>
   <div>
-    <Form ref="formData" :model="formData" :rules="rules" :label-width="80">
+    <h1 class="title">注册</h1>
+    <Form class="form" ref="formData" :model="formData" :rules="rules" :label-width="80">
       <FormItem label="用户名" prop="uname">
         <Input v-model="formData.uname" placeholder="请输入用户名"></Input>
       </FormItem>
@@ -19,6 +20,7 @@
 </template>
 <script>
 export default {
+  layout: 'centerForm',
   data () {
     return {
       formData: {

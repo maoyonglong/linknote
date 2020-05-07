@@ -51,13 +51,13 @@ router.post('/api/login', async (req, res) => {
   }
 })
 
-router.post('/api/loginout', async (req, res, next) => {
+router.post('/api/logout',  async (req, res, next) => {
   try {
     const token = req.headers.authorization.split(' ').pop()
     const success = await redisClient.del(jwt.verify(token).id)
     if (success) {
       res.send({
-        code: 1,
+        code: 0,
         msg: '退出成功！'
       })
     } else {

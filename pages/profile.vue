@@ -1,6 +1,7 @@
 <template>
-  <div>
-    <Form ref="formData" :model="formData" :rules="rules" :label-width="80">
+  <div class="page">
+    <h1 class="title">个人信息填写</h1>
+    <Form ref="formData" class="form" :model="formData" :rules="rules" :label-width="80">
       <Row>
         <Col span="20">
           <FormItem label="昵称" prop="pname">
@@ -175,6 +176,7 @@ export default {
             method: 'post',
             url: '/api/profile',
             action: 'add',
+            avatar: this.option.img,
             ...this.formData
           }).then(res => {
             const data = res.data
@@ -268,9 +270,14 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.page {
+  width: 960px;
+  margin: 0 auto;
+}
 .avatar-wrap {
   width: 100px;
   height: 100px;
+  margin-left: 50px;
 }
 .cropper-wrap {
   width: 500px;

@@ -2,15 +2,11 @@ import './db'
 import {Schema, model} from 'mongoose'
 
 const schema = new Schema({
-  uid: {
-    type: Schema.Types.ObjectId,
-    required: true
-  },
   /**
-   * 文件保存路径
+   * 文件夹id
    */
-  path: {
-    type: String,
+  folder_id: {
+    type: Schema.Types.ObjectId,
     required: true
   },
   // 文章标签

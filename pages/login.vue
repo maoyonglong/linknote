@@ -1,28 +1,28 @@
 <template>
-  <div id="page" class="page">
-    <main class="page-center" v-show="finished">
-      <h1 class="title">登陆</h1>
-      <Form class="form" ref="formData" :model="formData" :rules="rules" :label-width="80">
-        <FormItem label="用户名" prop="uname">
-          <Input v-model="formData.uname" placeholder="请输入用户名"></Input>
-        </FormItem>
-        <FormItem label="密码" prop="pwd">
-          <Input type="password" v-model="formData.pwd" placeholder="请输入密码"></Input>
-        </FormItem>
-        <FormItem>
-          <Button type="primary" @click="handleSubmit('formData')">登陆</Button>
-        </FormItem>
-      </Form>
-    </main>
+  <div>
+    <h1 class="title">登陆</h1>
+    <Form class="form" ref="formData" :model="formData" :rules="rules" :label-width="80">
+      <FormItem label="用户名" prop="uname">
+        <Input v-model="formData.uname" placeholder="请输入用户名"></Input>
+      </FormItem>
+      <FormItem label="密码" prop="pwd">
+        <Input type="password" v-model="formData.pwd" placeholder="请输入密码"></Input>
+      </FormItem>
+      <FormItem>
+        <Button type="primary" @click="handleSubmit('formData')">登陆</Button>
+      </FormItem>
+    </Form>
+    <Spin size="large" v-if="loading" fix></Spin>
   </div>
 </template>
 <script>
-import { fullPage } from './util'
 import Cookie from 'js-cookie'
 
 export default {
+  layout: 'centerForm',
   data () {
     return {
+      loading: true,
       formData: {
         uname: '',
         pwd: ''
@@ -48,14 +48,14 @@ export default {
             trigger: 'blur'
           }
         ]
-      },
-      finished: false
+      }
     }
   },
   methods: {
     handleSubmit (name) {
       this.$refs[name].validate((valid) => {
         if (valid) {
+          this.loading = true
           this.$axios.post('/api/login', this.formData)
             .then(res => {
               if (res.data.code === 0) {
@@ -67,6 +67,8 @@ export default {
               this.$router.push('/')
             }).catch(err => {
               this.$Message.error(err.message)
+            }).finally(() => {
+              this.loading = false
             })
         } else {
           this.$Message.error('请正确填写表单')
@@ -74,39 +76,10 @@ export default {
       })
     }
   },
-  mounted () {
-    fullPage()
-    this.finished = true
+  beforeMount () {
+    window.addEventListener('load', () => {
+      this.loading = false
+    })
   }
 }
 </script>
-
-<style lang="scss" scoped>
-.page {
-  position: relative;
-  background-color: $bgColor;
-}
-
-.title {
-  padding: 20px;
-  text-align: center;
-}
-
-.page-center {
-  position: absolute;
-  width: 400px;
-  height: 300px;
-  border-radius: 10px;
-  box-shadow: 0 0 2px $shadowColor;
-  margin: auto;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  right: 0;
-  background-color: #fff;
-}
-
-.form {
-  padding-right: 20px;
-}
-</style>

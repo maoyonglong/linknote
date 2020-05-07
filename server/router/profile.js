@@ -2,35 +2,34 @@ import {Router} from 'express'
 import auth from '../middleware/auth'
 import rbac from '../middleware/rbac'
 import profileModel from '../model/profile'
-import {action} from './common'
 import {Types} from 'mongoose'
 
 const router = Router()
 
-const executions = {
-  'get:get': req => profileModel.findById(Types.ObjectId(req.params.uid)),
-  'post:delete': async req => {
-    const doc = await pro.findById(Types.ObjectId(req.params.uid))
+const owner = async (req, res, next) => {
+  const pid = req.query.pid
+  const uid = req.userDoc._id
+  const doc = await profileModel.findById(pid)
 
-    if (!doc) {
-      return Promise.reject({
-        code: -1,
-        status: 422,
-        msg: '用户不存在'
-      })
-    }
-
-    return doc
+  req.owner = {
+    flag: doc.uid.toString() === uid.toString(),
+    doc
   }
+
+  next()
 }
 
-const roleCondition = req => {
-  const uidStr = req.params.uid
-  const ownerId = req.userDoc ? req.userDoc._id : null
-
-  return Promise.resolve(ownerId && uidStr === ownerId.toString() ? 'owner' : 'visitor')
-}
-
-router.use('/api/profile/:uid', auth(), rbac, action(executions, roleCondition))
+router.get('/api/profile/:uid', auth(), owner, async function (req, res) {
+  const doc = await profileModel.findById(Types.ObjectId(req.params.uid))
+  if (doc) {
+    res.send({
+      code: 0,
+      msg: '操作成功!',
+      result: doc
+    })
+  } else {
+    res.status(404)
+  }
+})
 
 export default router
