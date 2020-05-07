@@ -1,0 +1,64 @@
+.flex {
+  display: flex !important;
+  &.center {
+    justify-content: center;
+    align-items: center;
+    &-hori {
+      justify-content: center;
+    }
+    &-vert {
+      align-items: center;
+    }
+  }
+
+  &-grow {
+    flex-grow: 1;
+  }
+}
+
+$pos: (relative, absolute, fixed);
+@each $v in $pos {
+  .#{$v} {
+    position: #{$v};
+    > .item {
+      position: absolute;
+    }
+  }
+}
+
+.clearfix::after {
+  content: '';
+  display: block;
+  clear: both;
+}
+
+.float-l {
+  float: left;
+}
+
+.float-r {
+  float: right;
+}
+
+.container {
+  width: 1200px;
+  margin: auto;
+}
+
+.title {
+  margin-bottom: 20px;
+}
+
+.avatar {
+  height: 100%;
+  border-radius: 50%;
+}
+
+img {
+  display: block;
+  width: 100%;
+}
+
+.main {
+  padding-top: 80px;
+}

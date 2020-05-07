@@ -1,0 +1,25 @@
+@url = http://localhost:3000/api
+@json = Content-Type: application/json
+
+### regsiter
+POST {{url}}/register
+{{json}}
+
+{
+  "uname": "user3",
+  "pwd": "aaaaaa",
+  "email": "773099867@qq.com"
+}
+
+### login
+POST {{url}}/login
+{{json}}
+
+{
+  "uname": "user9",
+  "pwd": "aaaaaa"
+}
+
+### article
+POST {{url}}/article/a/123456
+Authorization: berear 544564654651

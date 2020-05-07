@@ -1,0 +1,49 @@
+$bgColor: #f9f9f9;
+$activeBgColor: #409eff;
+$archorColor: #90d0ff;
+$activeColor: #409eff;
+$titleColor: #1f2f3d;
+$textColor: #1f2f3d;
+$descColor: #99a9bf;
+$borderColor: #dcdfe6;
+$shadowColor: #20a0ff;
+$sectionColor: #fff;
+
+$titleWeight: 400;
+$h1FontSize: 30px;
+$h2FontSize: 28px;
+$h3FontSize: 22px;
+$descFontSize: 14px;
+$normalFontSize: 16px;
+
+.bg {
+  background-color: $bgColor;
+}
+
+.archor {
+  display: block;
+  color: $archorColor;
+  cursor: pointer;
+  &:active {
+    color: $activeColor;
+  }
+}
+
+.title {
+  color: $titleColor;
+  font-weight: $titleWeight;
+  &.h1 {
+    font-size: $h1FontSize;
+  }
+  &.h2 {
+    font-size: $h2FontSize;
+  }
+  &.h3 {
+    font-size: $h3FontSize;
+  }
+}
+
+.desc {
+  font-size: $descFontSize;
+  color: $descColor;
+}
