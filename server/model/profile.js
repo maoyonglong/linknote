@@ -14,7 +14,7 @@ const schema = new Schema({
   // 性别
   sex: {
     type: String,
-    enum: ['boy', 'gril'],
+    enum: ['男', '女'],
     required: true
   },
   // 头像

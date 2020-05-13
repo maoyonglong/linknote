@@ -5,6 +5,7 @@
       <h1 class="title">个人信息填写</h1>
       <slot name="tip"></slot>
       <Form ref="formData" class="form" :model="formData" :rules="rules" :label-width="80">
+        <div @click="onBlur">
         <Row>
           <Col span="15">
             <FormItem label="昵称" prop="pname">
@@ -20,19 +21,24 @@
                   v-model="formData.pname"
                   placeholder="请输入昵称"
                   ref="input0"
-                  @on-blur="onBlur"
                 ></Input>
               </edit-span>
             </FormItem>
             <FormItem label="性别" prop="sex">
-              <RadioGroup v-model="formData.sex">
-                <Radio label="boy">
-                    <span>男</span>
-                </Radio>
-                <Radio label="gril">
-                    <span>女</span>
-                </Radio>
-              </RadioGroup>
+              <edit-span
+                :state="editSpanState"
+                :text="formData.sex"
+                @update:state="onUpdateState"
+              >
+                <RadioGroup v-model="formData.sex">
+                  <Radio label="男">
+                      <span>男</span>
+                  </Radio>
+                  <Radio label="女">
+                      <span>女</span>
+                  </Radio>
+                </RadioGroup>
+              </edit-span>
             </FormItem>
             <FormItem label="生日" prop="birthday">
               <edit-span
@@ -47,7 +53,6 @@
                   placeholder="选择日期"
                   v-model="formData.birthday"
                   ref="input1"
-                  @on-blur="onBlur"
                 ></DatePicker>
               </edit-span>
             </FormItem>
@@ -62,7 +67,7 @@
             </Upload>
             <div class="avatar-wrap">
               <img :src="option.img" alt="avatar">
-              <Button type="primary" @click="handleAvatarClick">
+              <Button type="primary" @click="handleAvatarClick" v-if="!editSpanState">
                 <Icon type="md-cloud-upload" />
                 上传头像
               </Button>
@@ -82,7 +87,6 @@
               v-model="formData.email"
               placeholder="请输入邮箱"
               ref="input2"
-              @on-blur="onBlur"
             ></Input>
           </edit-span>
         </FormItem>
@@ -100,7 +104,6 @@
               v-model="formData.phone"
               placeholder="请输入手机号码"
               ref="input3"
-              @on-blur="onBlur"
             ></Input>
           </edit-span>
         </FormItem>
@@ -116,15 +119,20 @@
               :data="cities"
               v-model="formData.city"
               ref="input4"
-              @on-blur="onBlur"
             ></Cascader>
          </edit-span>
         </FormItem>
         <FormItem label="保密" prop="privacy">
-          <i-switch v-model="formData.privacy" size="large">
-            <span slot="open">On</span>
-            <span slot="close">Off</span>
-          </i-switch>
+          <edit-span
+            :state="editSpanState"
+            :text="formData.privacy ? '保密' : '公开'"
+            @update:state="onUpdateState"
+          >
+            <i-switch v-model="formData.privacy" size="large">
+              <span slot="open">On</span>
+              <span slot="close">Off</span>
+            </i-switch>
+          </edit-span>
         </FormItem>
         <FormItem label="个人介绍" prop="intro">
           <edit-span
@@ -140,10 +148,10 @@
               show-word-limit
               :maxlength="100"
               ref="input5"
-              @on-blur="onBlur"
             ></Input>
           </edit-span>
         </FormItem>
+        </div>
         <FormItem>
           <!-- button slot -->
           <slot></slot>
@@ -197,8 +205,8 @@ export default {
   data () {
     return {
       formData: {
-        pname: 'pname',
-        sex: 'boy',
+        pname: '',
+        sex: '男',
         birthday: new Date(),
         email: null,
         phone: null,
@@ -280,8 +288,22 @@ export default {
     }
   },
   methods: {
-    onBlur () {
-      this.$emit('blur')
+    onBlur (event) {
+      const target = event.target
+      const formElsClassName = [
+        'ivu-input',
+        'ivu-radio-input',
+        'ivu-switch',
+        'ivu-btn',
+        'ivu-upload-input'
+      ]
+      if (
+        !this.editSpanState &&
+        !formElsClassName.some(name => target.classList.contains(name)) &&
+        target.nodeName !== 'SPAN'
+      ) {
+        this.$emit('blur')
+      }
     },
     onUpdateState ({ state, id }) {
       // 先改变，再获取ref
@@ -292,38 +314,15 @@ export default {
         })
       }
     },
-    handleSubmit (name) {
-      this.$refs[name].validate((valid) => {
-        if (valid) {
-          this.loading = true
-          this.$axios({
-            method: 'post',
-            url: '/api/profile/add',
-            data: {
-              avatar: this.option.img,
-              ...this.formData,
-              city: this.formData.city.join('-')
-            }
-          }).then(res => {
-            const data = res.data
-            if (data.code === 0) {
-              this.$Message.success({
-                content: '提交成功！',
-                onClose: () => {
-                  this.$router.push('/')
-                }
-              })
-            } else {
-              this.$Message.error(data.msg + '\n' + data.err.message)
-            }
-          }).catch(err => {
-            this.$Message.error(err.message)
-          }).finally(() => {
-            this.loading = false
-          })
-        } else {
-          this.$Message.error('表单填写格式有误！')
-        }
+    validate () {
+      return new Promise((resolve, reject) => {
+        this.$refs.formData.validate((valid) => {
+          if (valid) {
+            resolve(this.$data)
+          } else {
+            reject(this.$data)
+          }
+        })
       })
     },
     file2base64(file){
@@ -382,7 +381,21 @@ export default {
       }).then(res => {
         const data = res.data
         if (data.code === 0) {
-          this.option.img = data.result
+          const avatar = data.result
+          this.option.img = avatar
+          this.$store.dispatch('setAvatar', avatar)
+          // update avatar
+          return this.$axios({
+            url: '/api/profile/avatar/update',
+            method: 'post',
+            data: {avatar}
+          })
+        } else {
+
+        }
+      }).then(res => {
+        const data = res.data
+        if (data.code === 0) {
           this.$Message.success(data.msg)
         } else {
           this.$Message.error(data.msg + '\n' + data.err.message)

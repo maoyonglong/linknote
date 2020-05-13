@@ -22,29 +22,6 @@ export default {
     Logo,
     VHeader
   },
-  async fetch ({app, store}) {
-    const $axios = app.$axios
-    const uid = store.state.uid
-    console.log(uid)
-    if (!uid) return
-
-    await $axios({
-      url: `/api/profile/${uid}`,
-      method: 'get'
-    }).then(res => {
-      const data = res.data
-      console.log(data)
-      if (data.code === 0) {
-        const result = data.result
-
-        store.dispatch('setAvatar', result.avatar)
-        store.dispatch('setPname', result.pname)
-      }
-    }).catch(err => {
-      errorTip = err.message
-      console.log(errorTip)
-    })
-  },
   mounted () {
     if (errorTip) {
       this.$Message.error(errorTip)

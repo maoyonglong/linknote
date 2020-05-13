@@ -8,13 +8,14 @@ const router = new Router()
 
 
 const filename = async (req, file, cb) => {
-  const fileName = file.fieldname + '-' + new Date().getTime() + path.extname(file.originalname)
+  const uid = req.session.uid || ''
+  const fileName = file.fieldname + '-' + uid + '-' + new Date().getTime() + path.extname(file.originalname)
   cb(null, fileName)
 }
 
 const genDest = subDirCb => async (req, file, cb) => {
   try {
-    const dir = path.join(path.relative(UPLOAD_ROOT, STATIC_ROOT), subDirCb(req, file))
+    const dir = path.join(UPLOAD_ROOT, subDirCb(req, file))
     await fs.ensureDir(dir)
     cb(null, dir)
   } catch (err) {
@@ -42,7 +43,7 @@ router.post('/uploads/images', imageUploader.single('img'), (req, res) => {
   res.send({
     code: 0,
     msg: '上传图片成功',
-    result: req.file.path
+    result: '\\' + path.relative(STATIC_ROOT, req.file.path)
   });
 })
 

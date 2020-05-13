@@ -1,6 +1,7 @@
 <template>
   <header class="header flex center-vert">
     <div class="container flex">
+      <nuxt-link class="archor link" to="/">首页</nuxt-link>
       <nuxt-link class="archor link" to="#">发现</nuxt-link>
       <div class="flex center-vert" v-if="isLogin">
         <div
@@ -47,6 +48,9 @@ export default {
       avatarListVisible: false,
       loading: false
     }
+  },
+  asyncData ({ $axios }) {
+    $axios.get('')
   },
   methods: {
     logout (event) {

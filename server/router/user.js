@@ -3,8 +3,6 @@ import userModel from '../model/user'
 import bcrypt from 'bcrypt'
 import _ from 'lodash'
 
-const EXPIRE = 60 * 60
-
 const router = Router()
 
 router.post('/api/login', async (req, res) => {

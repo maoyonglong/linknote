@@ -26,6 +26,11 @@ export const actions = {
     if (!uid) return
 
     dispatch('setUid', uid)
+
+    const profile = await $axios.get('/api/profile/self')
+    const result = profile.data.result
+    dispatch('setPname', result.pname)
+    dispatch('setAvatar', result.avatar)
   }
 }
 
