@@ -33,7 +33,8 @@ module.exports = {
     'iview/dist/styles/iview.css',
     'quill/dist/quill.snow.css',
     'quill/dist/quill.bubble.css',
-    'quill/dist/quill.core.css'
+    'quill/dist/quill.core.css',
+    './assets/styles/editor.css'
   ],
   /*
   ** Plugins to load before mounting the App
@@ -48,7 +49,11 @@ module.exports = {
     {
       src: '~/plugins/vue-cropper',
       ssr: false
-    }
+    },
+    // {
+    //   src: '~/plugins/route',
+    //   ssr: true
+    // }
   ],
   /*
   ** Nuxt.js dev-modules

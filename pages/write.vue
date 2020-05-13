@@ -2,29 +2,55 @@
   <div id="page" class="flex">
     <div class="relative">
       <div class="tree-list folder-list">
-        <div class="tree-item">
-          <div class="tree-icon icon-folder"></div>
-          <span>foldesr</span>
+        <div class="tree-item active">
+          <div class="flex center-vert">
+            <i class="iconfont icon-folder">&#xe80c;</i>
+            <span>foldesr</span>
+          </div>
+          <Poptip>
+            <i class="iconfont">&#xe6bb;</i>
+            <ul class="pop-list" slot="content">
+              <li class="pop-item">item 1</li>
+              <li class="pop-item">item 2</li>
+            </ul>
+          </Poptip>
         </div>
       </div>
     </div>
     <div class="relative">
       <div class="tree-list file-list">
-        <div class="tree-item">
-          <div class="tree-icon icon-file"></div>
-          <span>file</span>
+        <div class="tree-item active">
+          <div class="flex center-vert">
+            <i class="iconfont icon-file">&#xe679;</i>
+            <span>file</span>
+          </div>
+          <i class="iconfont">&#xe6bb;</i>
         </div>
       </div>
     </div>
-    <div class="relative">
-      <div
+    <div class="relative flex-grow">
+      <quill-editor
         class="quill-editor"
-       :content="content"
-       ref="myQuillEditor"
-       @change="onEditorChange($event)"
-       v-quill:myQuillEditor="editorOption"
+        v-model="content"
+        ref="myQuillEditor"
+        @change="onEditorChange($event)"
+        :options="editorOption"
       >
-      </div>
+        <div class="toolbar" slot="toolbar">
+          <Button type="primary">
+            <Icon type="md-cloud-download" />
+            发布文章
+          </Button>
+          <Button type="info">
+            <Icon type="md-cloud-upload" />
+            保存
+          </Button>
+          <Button type="error">
+            <Icon type="md-trash" />
+            删除
+          </Button>
+        </div>
+      </quill-editor>
       <Spin fix v-if="loading"></Spin>
       <Upload
         accept="image/*"
@@ -39,7 +65,11 @@
 </template>
 
 <script>
-import { fullPage, restHeight } from './util'
+import { fullPage, restHeight } from '~/assets/scripts/util'
+import Cookies from 'js-cookie'
+
+const fonts = ['Microsoft-YaHei','SimSun', 'SimHei','KaiTi','Arial','Times-New-Roman', 'FangSong']
+const sizes = ['12px', '14px', '16px', '18px', '20px', '24px', '36px']
 
 export default {
   data () {
@@ -48,40 +78,39 @@ export default {
       header: {
         isLogin: true
       },
-      loading: false,
+      loading: true,
       content: '',
       action: '/uploads/images',
       editorOption: {
         modules: {
           toolbar: {
             container: [
-              ['bold', 'italic', 'underline', 'strike'], // toggled buttons
+              ['bold', 'italic', 'underline', 'strike'],        // toggled buttons
               ['blockquote', 'code-block'],
-              ['link', 'image'],
 
-              [{'header': 1}, {'header': 2}], // custom button values
-              [{'list': 'ordered'}, {'list': 'bullet'}],
-              [{'script': 'sub'}, {'script': 'super'}], // superscript/subscript
-              [{'indent': '-1'}, {'indent': '+1'}], // outdent/indent
-              [{'direction': 'rtl'}], // text direction
+              [{ 'header': 1 }, { 'header': 2 }],               // custom button values
+              [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+              [{ 'script': 'sub'}, { 'script': 'super' }],      // superscript/subscript
+              [{ 'indent': '-1'}, { 'indent': '+1' }],          // outdent/indent
+              [{ 'direction': 'rtl' }],                         // text direction
 
-              [{'size': ['small', false, 'large', 'huge']}], // custom dropdown
-              [{'header': [1, 2, 3, 4, 5, 6, false]}],
+              [{ 'size': sizes }],  // custom dropdown
+              [{ 'header': [1, 2, 3, 4, 5, 6] }],
 
-              [{'color': []}, {'background': []}], // dropdown with defaults from theme
-              [{'font': []}],
-              [{'align': []}],
+              [{ 'color': [] }, { 'background': [] }],          // dropdown with defaults from theme
+              [{ 'font': fonts }],
+              [{ 'align': [] }],
 
-              ['clean'] // remove formatting button
+              ['clean']                                        // remove formatting button
             ],
             handlers: {
-              image () {
-                this.quill.format('image', false)// 禁用quill内部上传图片方法
-                self.imgHandler(this)
+              'image': function () {
+                console.log(file)
               }
             }
           }
-        }
+        },
+        theme: 'snow'
       }
     }
   },
@@ -123,10 +152,26 @@ export default {
       return false
     }
   },
+  asyncData ({ $axios }) {
+    $axios({
+      url: '/api/folder',
+      method: 'get',
+      params: {
+        uid: Cookies.get('USER_TOKEN')
+      }
+    })
+  },
   mounted () {
-    this.content="<h1>sdfsdfsdf</h1>"
     fullPage()
+    this.loading = false
     restHeight('.ql-container')
+    const Quill = require('quill')
+    const Font = Quill.import('formats/font')
+    const Size = Quill.import('formats/size')
+    Font.whitelist = fonts
+    Size.whitelist = sizes
+    Quill.register(Font, true)
+    Quill.register(Size, true)
   }
 }
 </script>
@@ -136,32 +181,63 @@ export default {
   height: 100%;
 }
 
-// .quill-editor {
-//   height: 745px;
+.tree-item {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 20px;
+  font-size: 20px;
+  cursor: pointer;
 
-//   .ql-container {
-//     height: 680px;
-//   }
-// }
-
-.tree {
-  &-item {
-    display: flex;
-    align-items: center;
-    padding: 10px;
-    .icon {
-      &-folder {
-        background-color: yellow;
-      }
-      &-file {
-        background-color: blue;
-      }
+  &:hover,
+  &.active {
+    background-color: #ddd;
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      display: block;
+      width: 4px;
+      height: 100%;
+      background-color: $activeColor;
     }
   }
-  &-icon {
-    width: 60px;
-    height: 60px;
-    margin-right: 20px;
+
+  .iconfont {
+    font-size: 30px;
+    &:first-child {
+      margin-right: 10px;
+    }
+    &:last-child {
+      margin-left: 10px;
+    }
+  }
+
+  .icon-folder {
+    color: #ffca28;
+  }
+
+  .icon-file {
+    color: #008df0;
+  }
+}
+
+/deep/ .ivu-poptip-body {
+  padding: 0;
+}
+
+.toolbar {
+  padding: 10px;
+}
+
+.pop-item {
+  padding: 10px 15px;
+  border-bottom: 1px solid #ddd;
+  font-size: $normalFontSize;
+  &:hover {
+    background-color: $activeBgColor;
+    color: #fff;
   }
 }
 

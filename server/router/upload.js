@@ -1,11 +1,11 @@
 import {Router} from 'express'
-import {UPLOAD_ROOT} from '../config'
+import {UPLOAD_ROOT, STATIC_ROOT} from '../config'
 import fs from 'fs-extra'
 import path from 'path'
 import multer from 'multer'
-import auth from '../middleware/auth'
 
 const router = new Router()
+
 
 const filename = async (req, file, cb) => {
   const fileName = file.fieldname + '-' + new Date().getTime() + path.extname(file.originalname)
@@ -14,8 +14,7 @@ const filename = async (req, file, cb) => {
 
 const genDest = subDirCb => async (req, file, cb) => {
   try {
-    const dir = path.join(UPLOAD_ROOT, subDirCb(req, file))
-    console.log(dir)
+    const dir = path.join(path.relative(UPLOAD_ROOT, STATIC_ROOT), subDirCb(req, file))
     await fs.ensureDir(dir)
     cb(null, dir)
   } catch (err) {

@@ -25,7 +25,7 @@
 </template>
 
 <script>
-import { fullPage } from './util'
+import { fullPage } from '~/assets/scripts/util'
 import VHeader from '~/components/Header'
 
 export default {

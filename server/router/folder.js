@@ -4,8 +4,8 @@ import folderModel from '../model/folder'
 
 const router = new Router()
 
-const owner = async function (req, res, next) {
-  const id = req.query.id
+const ownerByAid = async function (req, res, next) {
+  const id = req.query.aid || req.body.aid
   const uid = req.userDoc._id
   const doc = await folderModel.findById(id)
 
@@ -17,8 +17,29 @@ const owner = async function (req, res, next) {
   next()
 }
 
-router.post('/api/folder', auth(true), async (req, res) => {
+const ownerByUid = async function (req, res, next) {
+  const id = req.query.uid || req.body.uid
+  const uid = req.userDoc._id
+
+  req.owner = {
+    flag: id.toString() === uid.toString(),
+    doc
+  }
+
+  next()
+}
+
+router.post('/api/folder', auth(true), ownerByAid, async (req, res) => {
   const action = req.body.action
+  const isOwner = req.owner.flag
+
+  if (!isOwner) {
+    res.send({
+      code: -1,
+      msg: '无权限访问！',
+      err: new Error('no right.')
+    })
+  }
 
   const executions = {
     add: async function () {
@@ -28,12 +49,12 @@ router.post('/api/folder', auth(true), async (req, res) => {
       await doc.save()
     },
     rename: async function () {
-      const _id = req.body.id
+      const _id = req.body.aid
       const name = req.body.name
       await folderModel.updateOne({ _id }, { $set: {name} })
     },
     del: async function () {
-      const _id = req.body.id
+      const _id = req.body.aid
       await folderModel.deleteOne({ _id })
     },
   }
@@ -53,7 +74,7 @@ router.post('/api/folder', auth(true), async (req, res) => {
   }
 })
 
-router.get('/api/folder', auth(), owner(), async (req, res) => {
+router.get('/api/folder', auth(), ownerByUid, async (req, res) => {
   const isOwner = req.owner.flag
   const type = req.query.type
   try {

@@ -2,6 +2,9 @@ import express from 'express'
 import consola from 'consola'
 import { Nuxt, Builder } from 'nuxt'
 import 'express-async-errors'
+import session from 'express-session'
+import bodyParser from 'body-parser'
+import redisStore from 'connect-redis'
 import errHandler from './middleware/errHandler'
 
 import userRouter from './router/user'
@@ -9,7 +12,11 @@ import articleRouter from './router/article'
 import profileRouter from './router/profile'
 import uploadRouter from './router/upload'
 
+import passport from 'passport'
+import redisClient from './redis/client'
+
 const app = express()
+const RedisStore = redisStore(session)
 
 // Import and Set Nuxt.js options
 const config = require('../nuxt.config.js')
@@ -28,7 +35,20 @@ async function start () {
     await builder.build()
   }
 
-  app.use(express.json())
+  app.use(session({
+    store: new RedisStore({
+      client: redisClient
+    }),
+    secret: 'sdfoskdopfksd;fk',
+    resave: false,
+    saveUninitialized: false
+  }))
+  app.use(passport.initialize())
+  app.use(passport.session())
+  app.use(bodyParser.json())
+  app.use(bodyParser.urlencoded({
+    extended: false
+  }))
   app.use(userRouter)
   app.use(profileRouter)
   app.use(articleRouter)

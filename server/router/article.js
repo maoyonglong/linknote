@@ -1,4 +1,3 @@
-import articleModel from '../model/article'
 import {Router} from 'express'
 import auth from '../middleware/auth'
 // import rbac from '../middleware/rbac'
@@ -29,13 +28,27 @@ const isOwner = async function (req, res, next) {
   next()
 }
 
-router.post('/api/article', auth(), isOwner, function (req, res) {
+router.post('/api/article', auth(true), isOwner, async function (req, res) {
   const action = req.body.action
   const aid = req.body.aid
-  const isOwner = req.owner.flag
 
   const executions = {
+    add: function () {},
+    update: function () {},
+    del: function () {}
+  }
 
+  const docs = await executions[action]()
+  if (action !== 'del') {
+    if (docs.length > 0) {
+      res.send({
+        code: 0,
+        msg: '操作成功!',
+        result: doc
+      })
+    } else {
+      res.status(404)
+    }
   }
 })
 

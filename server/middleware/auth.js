@@ -20,4 +20,5 @@ export default isCheck => async (req, res, next) => {
   //   req.role = 'ordinary'
   //   next()
   // }
+  next()
 }

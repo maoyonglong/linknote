@@ -1,13 +1,13 @@
 <template>
-  <div id="page" class="page">
-    <main class="page-center" v-show="finished">
+  <div id="page" class="l-centerForm-page">
+    <main class="l-centerForm-page-center" v-show="finished">
       <nuxt />
     </main>
   </div>
 </template>
 
 <script>
-import { fullPage } from '~/pages/util'
+import { fullPage } from '~/assets/scripts/util'
 
 export default {
   data () {
@@ -23,21 +23,22 @@ export default {
 </script>
 
 <style lang="scss">
-.page {
+$prefix: unquote("l-centerForm");
+
+.#{$prefix}-page {
   position: relative;
   background-color: $bgColor;
+  /deep/ .title {
+    padding: 20px;
+    text-align: center;
+  }
+
+  /deep/ .form {
+    padding-right: 20px;
+  }
 }
 
-.title {
-  padding: 20px;
-  text-align: center;
-}
-
-.form {
-  padding-right: 20px;
-}
-
-.page-center {
+.#{$prefix}-page-center {
   position: absolute;
   width: 400px;
   height: 300px;

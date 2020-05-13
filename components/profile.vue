@@ -3,11 +3,26 @@
     <Spin v-if="loading" fix size="large"></Spin>
     <main v-else>
       <h1 class="title">个人信息填写</h1>
+      <slot name="tip"></slot>
       <Form ref="formData" class="form" :model="formData" :rules="rules" :label-width="80">
         <Row>
           <Col span="15">
             <FormItem label="昵称" prop="pname">
-              <Input :maxlength="10" style="max-width: 120px;" v-model="formData.pname" placeholder="请输入昵称"></Input>
+              <edit-span
+                style="max-width: 120px;"
+                :state="editSpanState"
+                :text="formData.pname"
+                :id="0"
+                @update:state="onUpdateState"
+              >
+                <Input
+                  :maxlength="10"
+                  v-model="formData.pname"
+                  placeholder="请输入昵称"
+                  ref="input0"
+                  @on-blur="onBlur"
+                ></Input>
+              </edit-span>
             </FormItem>
             <FormItem label="性别" prop="sex">
               <RadioGroup v-model="formData.sex">
@@ -20,7 +35,21 @@
               </RadioGroup>
             </FormItem>
             <FormItem label="生日" prop="birthday">
-              <DatePicker style="max-width: 140px;" type="date" placeholder="选择日期" v-model="formData.birthday"></DatePicker>
+              <edit-span
+                style="max-width: 140px;"
+                :state="editSpanState"
+                :text="formatedDate"
+                :id="1"
+                @update:state="onUpdateState"
+              >
+                <DatePicker
+                  type="date"
+                  placeholder="选择日期"
+                  v-model="formData.birthday"
+                  ref="input1"
+                  @on-blur="onBlur"
+                ></DatePicker>
+              </edit-span>
             </FormItem>
           </Col>
           <Col span="9">
@@ -41,13 +70,55 @@
           </Col>
         </Row>
         <FormItem label="邮箱" prop="email">
-          <Input style="max-width: 200px;" type="email" v-model="formData.email" placeholder="请输入邮箱"></Input>
+          <edit-span
+            style="max-width: 200px;"
+            :state="editSpanState"
+            :text="formData.email"
+            :id="2"
+            @update:state="onUpdateState"
+          >
+            <Input
+              type="email"
+              v-model="formData.email"
+              placeholder="请输入邮箱"
+              ref="input2"
+              @on-blur="onBlur"
+            ></Input>
+          </edit-span>
         </FormItem>
         <FormItem label="手机号码" prop="phone">
-          <Input style="max-width: 200px;" :maxlength="11" type="text" v-model="formData.phone" placeholder="请输入手机号码"></Input>
+          <edit-span
+            style="max-width: 200px;"
+            :state="editSpanState"
+            :text="formData.phone"
+            :id="3"
+            @update:state="onUpdateState"
+          >
+            <Input
+              :maxlength="11"
+              type="tel"
+              v-model="formData.phone"
+              placeholder="请输入手机号码"
+              ref="input3"
+              @on-blur="onBlur"
+            ></Input>
+          </edit-span>
         </FormItem>
         <FormItem label="城市" prop="city">
-          <Cascader style="max-width: 120px;" :data="cities" v-model="formData.city"></Cascader>
+          <edit-span
+            style="max-width: 120px;"
+            :state="editSpanState"
+            :text="formatedCity"
+            :id="4"
+            @update:state="onUpdateState"
+          >
+            <Cascader
+              :data="cities"
+              v-model="formData.city"
+              ref="input4"
+              @on-blur="onBlur"
+            ></Cascader>
+         </edit-span>
         </FormItem>
         <FormItem label="保密" prop="privacy">
           <i-switch v-model="formData.privacy" size="large">
@@ -56,10 +127,26 @@
           </i-switch>
         </FormItem>
         <FormItem label="个人介绍" prop="intro">
-          <Input type="textarea" v-model="formData.intro" placeholder="请输入个人介绍" show-word-limit ::maxlength="100"></Input>
+          <edit-span
+            :state="editSpanState"
+            :text="formData.intro"
+            :id="5"
+            @update:state="onUpdateState"
+          >
+            <Input
+              type="textarea"
+              v-model="formData.intro"
+              placeholder="请输入个人介绍"
+              show-word-limit
+              :maxlength="100"
+              ref="input5"
+              @on-blur="onBlur"
+            ></Input>
+          </edit-span>
         </FormItem>
         <FormItem>
-          <Button type="primary" @click="handleSubmit('formData')">提交</Button>
+          <!-- button slot -->
+          <slot></slot>
         </FormItem>
       </Form>
     </main>
@@ -94,26 +181,37 @@
 </template>
 <script>
 import cities from '~/assets/scripts/cities'
+import EditSpan from './EditSpan'
+import dateFormat from 'dateFormat'
 
 export default {
+  components: {
+    EditSpan
+  },
+  props: {
+    editSpanState: {
+      type: Boolean,
+      default: true
+    }
+  },
   data () {
     return {
       formData: {
-        pname: '',
+        pname: 'pname',
         sex: 'boy',
         birthday: new Date(),
-        email: '',
-        phone: '',
+        email: null,
+        phone: null,
         city: [],
         privacy: false,
-        intro: ''
+        intro: null
       },
       action: '/uploads/images',
       cropAvatar: false,
       loading: true,
       cities,
       option: {
-        img: 'avatar.png', // 裁剪图片的地址
+        img: '/avatar.png', // 裁剪图片的地址
         info: true, // 裁剪框的大小信息
         outputSize: 0.8, // 裁剪生成图片的质量
         outputType: 'jpeg', // 裁剪生成图片的格式
@@ -173,7 +271,27 @@ export default {
       }
     }
   },
+  computed: {
+    formatedDate () {
+      return dateFormat(this.formData.birthday, 'yyyy-mm-dd')
+    },
+    formatedCity () {
+      return this.formData.city.join('/')
+    }
+  },
   methods: {
+    onBlur () {
+      this.$emit('blur')
+    },
+    onUpdateState ({ state, id }) {
+      // 先改变，再获取ref
+      this.$emit('update:editSpanState', state)
+      if (!state) {
+        this.$nextTick(() => {
+          this.$refs['input' + id].focus()
+        })
+      }
+    },
     handleSubmit (name) {
       this.$refs[name].validate((valid) => {
         if (valid) {
@@ -278,6 +396,7 @@ export default {
   },
   mounted () {
     this.$nextTick(() => {
+      window.refs = this.$refs
       this.loading = false
     })
   }
@@ -285,14 +404,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.page {
-  width: 60%;
-  margin: 0 auto;
-}
 .avatar-wrap {
-  width: 100px;
-  height: 100px;
-  // margin-left: 50px;
+width: 100px;
+height: 100px;
 }
 .cropper-wrap {
   width: 500px;

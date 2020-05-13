@@ -10,14 +10,15 @@
       </FormItem>
       <FormItem>
         <Button type="primary" @click="handleSubmit('formData')">登陆</Button>
+        <nuxt-link to="/register">
+          <Button type="primary">注册</Button>
+        </nuxt-link>
       </FormItem>
     </Form>
     <Spin size="large" v-if="loading" fix></Spin>
   </div>
 </template>
 <script>
-import Cookie from 'js-cookie'
-
 export default {
   layout: 'centerForm',
   data () {
@@ -56,20 +57,28 @@ export default {
       this.$refs[name].validate((valid) => {
         if (valid) {
           this.loading = true
-          this.$axios.post('/api/login', this.formData)
-            .then(res => {
-              if (res.data.code === 0) {
-                Cookie.set('USER_TOKEN', res.data.result)
-                this.$Message.success(res.data.msg)
-                return Promise.resolve()
-              }
-            }).then(() => {
-              this.$router.push('/')
-            }).catch(err => {
-              this.$Message.error(err.message)
-            }).finally(() => {
-              this.loading = false
-            })
+          this.$axios({
+            url: '/api/login',
+            method: 'post',
+            data: this.formData
+          }).then(res => {
+            const data = res.data
+            if (data.code === 0) {
+              this.$store.dispatch('setUid', data.result)
+              this.$Message.success({
+                content: data.msg,
+                onClose: () => {
+                  this.$router.push('/')
+                }
+              })
+            } else {
+              this.$Message.error(data.msg + '\n' + data.err.message)
+            }
+          }).catch(err => {
+            this.$Message.error(err.message)
+          }).finally(() => {
+            this.loading = false
+          })
         } else {
           this.$Message.error('请正确填写表单')
         }
@@ -77,7 +86,7 @@ export default {
     }
   },
   beforeMount () {
-    window.addEventListener('load', () => {
+    this.$nextTick(() => {
       this.loading = false
     })
   }

@@ -13,6 +13,9 @@
       </FormItem>
       <FormItem>
         <Button type="primary" @click="handleSubmit('formData')">注册</Button>
+        <nuxt-link to="/login">
+          <Button type="primary">登陆</Button>
+        </nuxt-link>
       </FormItem>
     </Form>
     <Spin v-if="loading" fix size="large"></Spin>
@@ -76,23 +79,18 @@ export default {
           this.$axios({
             method: 'post',
             url: '/api/register',
-            ...this.formData
+            data: this.formData
           }).then(res => {
-              if (res.code === 0) {
+              const data = res.data
+              if (data.code === 0) {
                 this.$Message.success({
-                  content: '注册成功！',
+                  content: data.msg,
                   onClose: () => {
-                    const uid = res.data.result
-                    this.$router.push({
-                      path: '/profile',
-                      query: {
-                        uid
-                      }
-                    })
+                    this.$router.push('/profile')
                   }
                 })
               } else {
-                this.$Message.error('注册失败！')
+                this.$Message.error(data.msg + '\n' + data.err.message)
               }
             }).catch(err => {
               this.$Message.error(err.message)

@@ -1,28 +1,28 @@
 <template>
   <header class="header flex center-vert">
     <div class="container flex">
-      <a class="archor link">发现</a>
-      <div class="flex center-vert" v-if="isLogin" @mouseenter="handleAvatarList">
-        <a
+      <nuxt-link class="archor link" to="#">发现</nuxt-link>
+      <div class="flex center-vert" v-if="isLogin">
+        <div
           class="avatar-wrap archor flex center-vert"
           :style="{'backgroundColor': avatarListVisible ? '#f9f9f9' : 'transparent'}"
           @mouseenter="showAvatarList"
           @mouseleave="hideAvatarList"
-          href="/space"
+          @click="toSpace"
         >
-          <img class="avatar" :src="avatar" :alt="avatarAlt">
+          <img class="avatar" :src="avatar" :alt="pname">
           <Icon type="md-arrow-dropdown" />
           <ul class="absolute avatar-list" v-show="avatarListVisible">
-            <li><a class="archor" href="/space">个人中心</a></li>
+            <li><nuxt-link class="archor" to="/space">个人中心</nuxt-link></li>
             <li @click="logout"><span class="archor">退出</span></li>
           </ul>
-        </a>
+        </div>
         <Button type="info" class="write-btn" @click="toWrite">写笔记</Button>
       </div>
 
       <div v-else class="flex">
-        <a class="archor" href="/login">登陆</a>
-        <a class="archor" href="/register">注册</a>
+        <nuxt-link class="archor" to="/login">登陆</nuxt-link>
+        <nuxt-link class="archor" to="/register">注册</nuxt-link>
       </div>
     </div>
     <Spin v-if="loading" fix size="large"></Spin>
@@ -30,20 +30,17 @@
 </template>
 
 <script>
+import { mapState } from 'vuex'
+
 export default {
-  props: {
-    isLogin: {
-      type: Boolean,
-      default: false
+  computed: {
+    isLogin () {
+      return this.$store.getters.isLogin
     },
-    avatar: {
-      type: String,
-      default: '/avatar.jpg'
-    },
-    avatarAlt: {
-      type: String,
-      default: '用户头像'
-    }
+    ...mapState([
+      'avatar',
+      'pname'
+    ])
   },
   data () {
     return {
@@ -52,7 +49,8 @@ export default {
     }
   },
   methods: {
-    logout () {
+    logout (event) {
+      event.stopPropagation()
       this.loading = true
       this.$axios.post('/api/logout')
         .then(res => {
@@ -60,7 +58,7 @@ export default {
             this.$Message.success({
               content: '退出成功！',
               onClose: () => {
-                this.$router.redirect('/')
+                this.$router.replace('/login')
               }
             })
           } else {
@@ -74,6 +72,9 @@ export default {
     },
     toWrite () {
       this.$router.push('/write')
+    },
+    toSpace () {
+      this.$router.push('/space')
     },
     showAvatarList () {
       this.avatarListVisible = true
@@ -101,14 +102,11 @@ export default {
   .archor {
     height: 100%;
     color: $textColor;
-    font-size: $normalFontSize;
+    font-size: 14px;
+    margin-right: 20px;
     &:hover {
       color: $activeColor;
     }
-  }
-  .link {
-    margin-right: 20px;
-    font-size: 14px;
   }
   .avatar {
     width: 40px;
@@ -133,7 +131,14 @@ export default {
     color: $textColor;
     text-align: center;
     .archor {
+      line-height: 14px;
+      margin-right: 0;
+      padding: 10px;
       font-size: 12px;
+      border-bottom: 1px dotted #ddd;
+    }
+    &:last-child .archor {
+      border-bottom: 0;
     }
   }
 }

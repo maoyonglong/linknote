@@ -1,7 +1,7 @@
 import {Router} from 'express'
 import {action} from './common'
 import auth from '../middleware/auth'
-import rbac from '../middleware/rbac'
+import rbac from '../middleware/rbac-auth'
 
 const router = new Router()
 

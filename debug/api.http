@@ -7,8 +7,7 @@ POST {{url}}/register
 
 {
   "uname": "user3",
-  "pwd": "aaaaaa",
-  "email": "773099867@qq.com"
+  "pwd": "aaaaaa"
 }
 
 ### login
@@ -16,7 +15,7 @@ POST {{url}}/login
 {{json}}
 
 {
-  "uname": "user9",
+  "uname": "user3",
   "pwd": "aaaaaa"
 }
 

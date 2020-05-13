@@ -16,15 +16,6 @@ const schema = new Schema({
       return bcrypt.hashSync(val, 10)
     }
   },
-  // 角色
-  role: {
-    type: String,
-    default: 'ordinary',
-    enum: [
-      'ordinary',
-      'admin'
-    ]
-  },
   // 是否激活
   activation: {
     type: Boolean,

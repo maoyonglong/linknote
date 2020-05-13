@@ -1,5 +1,4 @@
-
-
+import {Schema} from 'mongoose'
 const schema = new Schema({
   // 评论用户id
   uid: {

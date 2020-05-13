@@ -1,9 +1,10 @@
 <template>
   <div id="page" class="layout">
-    <Layout style="height: 100%;" v-if="!loading">
+    <Spin v-if="loading" fix size="large"></Spin>
+    <Layout v-else style="overflow: hidden;">
       <v-header :isLogin="true"></v-header>
-      <Layout>
-        <Sider hide-trigger :style="{background: '#fff', paddingTop: '60px', borderRight: '1px solid #dcdee2'}">
+      <Layout style="overflow: hidden;">
+        <Sider hide-trigger :style="{'overflow-y': 'scroll', background: '#fff', paddingTop: '60px', borderRight: '1px solid #dcdee2', position: 'fixed', height: '100%'}">
           <Menu active-name="1-2" theme="light" width="auto" :open-names="['1']">
             <Submenu name="1">
               <template slot="title">
@@ -13,26 +14,74 @@
               <MenuItem name="1-2">Option 2</MenuItem>
               <MenuItem name="1-3">Option 3</MenuItem>
             </Submenu>
-            <MenuItem name="2"><Icon type="ios-keypad"></Icon>个人设置</MenuItem>
+            <MenuItem name="2">
+              <nuxt-link to="/space/profile"><Icon type="ios-keypad"></Icon>个人设置</nuxt-link>
+            </MenuItem>
+            <Submenu name="1">
+              <template slot="title">
+                <Icon type="ios-navigate"></Icon>笔记
+              </template>
+              <MenuItem name="1-1">Option 1</MenuItem>
+              <MenuItem name="1-2">Option 2</MenuItem>
+              <MenuItem name="1-3">Option 3</MenuItem>
+            </Submenu>
+            <MenuItem name="2">
+              <nuxt-link to="/space/profile"><Icon type="ios-keypad"></Icon>个人设置</nuxt-link>
+            </MenuItem>
+            <Submenu name="1">
+              <template slot="title">
+                <Icon type="ios-navigate"></Icon>笔记
+              </template>
+              <MenuItem name="1-1">Option 1</MenuItem>
+              <MenuItem name="1-2">Option 2</MenuItem>
+              <MenuItem name="1-3">Option 3</MenuItem>
+            </Submenu>
+            <MenuItem name="2">
+              <nuxt-link to="/space/profile"><Icon type="ios-keypad"></Icon>个人设置</nuxt-link>
+            </MenuItem>
+            <Submenu name="1">
+              <template slot="title">
+                <Icon type="ios-navigate"></Icon>笔记
+              </template>
+              <MenuItem name="1-1">Option 1</MenuItem>
+              <MenuItem name="1-2">Option 2</MenuItem>
+              <MenuItem name="1-3">Option 3</MenuItem>
+            </Submenu>
+            <MenuItem name="2">
+              <nuxt-link to="/space/profile"><Icon type="ios-keypad"></Icon>个人设置</nuxt-link>
+            </MenuItem>
+            <Submenu name="1">
+              <template slot="title">
+                <Icon type="ios-navigate"></Icon>笔记
+              </template>
+              <MenuItem name="1-1">Option 1</MenuItem>
+              <MenuItem name="1-2">Option 2</MenuItem>
+              <MenuItem name="1-3">Option 3</MenuItem>
+            </Submenu>
+            <MenuItem name="2">
+              <nuxt-link to="/space/profile"><Icon type="ios-keypad"></Icon>个人设置</nuxt-link>
+            </MenuItem>
           </Menu>
         </Sider>
-        <Layout :style="{padding: '0 24px 24px'}">
-          <Content :style="{padding: '24px', paddingTop: '84px', minHeight: '280px', background: '#fff'}">
-            <!-- <router-view></router-view> -->
+        <Layout :style="{marginLeft: '200px'}">
+          <Content id="content" :style="{padding: '24px', paddingTop: '84px', minHeight: '280px', background: '#fff'}">
+            <nuxt-child></nuxt-child>
           </Content>
         </Layout>
       </Layout>
     </Layout>
-    <Spin v-if="loading" fix size="large"></Spin>
   </div>
 </template>
 <script>
 import VHeader from '~/components/Header'
-import {fullPage} from './util'
+import {fullPage} from '~/assets/scripts/util'
 
 export default {
   components: {
     VHeader
+  },
+  asyncData () {
+
   },
   data () {
     return {
@@ -41,9 +90,7 @@ export default {
   },
   mounted () {
     fullPage()
-    window.onload = () => {
-      this.loading = false
-    }
+    this.loading = false
   }
 }
 </script>
@@ -54,7 +101,6 @@ export default {
   background: #f5f7f9;
   position: relative;
   border-radius: 4px;
-  overflow: hidden;
   &-logo {
     width: 100px;
     height: 30px;
