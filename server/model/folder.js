@@ -10,6 +10,10 @@ const schema = new Schema({
   name: {
     type: String,
     required: true
+  },
+  privacy: {
+    type: Boolean,
+    default: false
   }
 })
 

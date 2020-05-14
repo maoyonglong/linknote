@@ -9,6 +9,13 @@ const schema = new Schema({
     type: Schema.Types.ObjectId,
     required: true
   },
+  /**
+   * 引用的资源（图片）
+   */
+  assets: {
+    type: Array,
+    default: []
+  },
   // 文章标签
   tag: {
     type: String,
@@ -39,19 +46,12 @@ const schema = new Schema({
     type: Boolean,
     default: false
   },
-  // 保密等级
-  secret: {
-    type: String,
-    default: 'private',
-    enum: [
-      'public',
-      'private',
-      'followed',
-      'some'
-    ]
+  privacy: {
+    type: Boolean,
+    default: false
   },
   // 保密密钥（对含密钥的人公开，只有secret为some时，才生效）
-  secret_key: {
+  secret: {
     type: String,
     default: ''
   }
