@@ -1,7 +1,8 @@
 export const state = () => ({
   uid: null,
   avatar: '/avatar.jpg',
-  pname: '用户xxx'
+  pname: '用户xxx',
+  notSave: true
 })
 
 export const getters = {
@@ -19,6 +20,9 @@ export const actions = {
   },
   setPname ({commit}, payload) {
     commit('setPname', payload)
+  },
+  setNotSave ({commit}, payload) {
+    commit('setNotSave', payload)
   },
   async nuxtServerInit ({ dispatch  }, { req, $axios }) {
     const uid = req.session.uid
@@ -43,5 +47,8 @@ export const mutations = {
   },
   setPname (state, payload) {
     state.pname = payload
+  },
+  setNotSave (state, payload) {
+    state.notSave = payload
   }
 }

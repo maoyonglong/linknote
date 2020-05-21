@@ -50,10 +50,10 @@ module.exports = {
       src: '~/plugins/vue-cropper',
       ssr: false
     },
-    // {
-    //   src: '~/plugins/route',
-    //   ssr: true
-    // }
+    {
+      src: '~/plugins/route',
+      ssr: true
+    }
   ],
   /*
   ** Nuxt.js dev-modules

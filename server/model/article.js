@@ -2,6 +2,10 @@ import './db'
 import {Schema, model} from 'mongoose'
 
 const schema = new Schema({
+  name: {
+    type: String,
+    required: true
+  },
   /**
    * 文件夹id
    */
@@ -19,7 +23,7 @@ const schema = new Schema({
   // 文章标签
   tag: {
     type: String,
-    required: true
+    default: ''
   },
   // 文章类型（markdown/htmlstring）
   doctype: {
@@ -34,12 +38,12 @@ const schema = new Schema({
   // 文章内容
   content: {
     type: String,
-    required: true
+    default: ''
   },
   // 日期
   date: {
     type: Date,
-    default: Date.now
+    default: new Date()
   },
   // 是否发布
   publish: {

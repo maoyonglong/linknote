@@ -1,5 +1,6 @@
 @url = http://localhost:3000/api
 @json = Content-Type: application/json
+@cookie = Cookie: connect.sid=9wsEYgCPbUTkhpKt1NrN9mFsqmcapNTGfg
 
 ### regsiter
 POST {{url}}/register
@@ -21,4 +22,8 @@ POST {{url}}/login
 
 ### article
 POST {{url}}/article/a/123456
-Authorization: berear 544564654651
+
+### add article
+POST {{url}}/article/add
+{{cookie}}
+folderId: 5ebce656640693b620fa1cfe

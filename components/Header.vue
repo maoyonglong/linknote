@@ -2,7 +2,11 @@
   <header class="header flex center-vert">
     <div class="container flex">
       <nuxt-link class="archor link" to="/">首页</nuxt-link>
-      <nuxt-link class="archor link" to="#">发现</nuxt-link>
+      <!-- <nuxt-link class="archor link" to="#">发现</nuxt-link> -->
+      <a class="archor link" @click="$Modal.info({
+        title: '提示',
+        content: '该功能暂未实现！'
+      })">发现</a>
       <div class="flex center-vert" v-if="isLogin">
         <div
           class="avatar-wrap archor flex center-vert"
@@ -14,7 +18,7 @@
           <img class="avatar" :src="avatar" :alt="pname">
           <Icon type="md-arrow-dropdown" />
           <ul class="absolute avatar-list" v-show="avatarListVisible">
-            <li><nuxt-link class="archor" to="/space">个人中心</nuxt-link></li>
+            <li><nuxt-link class="archor" to="/space/profile" @click.native.stop>个人中心</nuxt-link></li>
             <li @click="logout"><span class="archor">退出</span></li>
           </ul>
         </div>
@@ -78,7 +82,7 @@ export default {
       this.$router.push('/write')
     },
     toSpace () {
-      this.$router.push('/space')
+      this.$router.push('/space/profile')
     },
     showAvatarList () {
       this.avatarListVisible = true

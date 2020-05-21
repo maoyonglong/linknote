@@ -80,9 +80,6 @@ export default {
   components: {
     VHeader
   },
-  asyncData () {
-
-  },
   data () {
     return {
       loading: true

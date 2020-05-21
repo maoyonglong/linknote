@@ -4,8 +4,7 @@ import {Schema, model} from 'mongoose'
 const schema = new Schema({
   uid: {
     type: Schema.Types.ObjectId,
-    required: true,
-    unique: true
+    required: true
   },
   name: {
     type: String,

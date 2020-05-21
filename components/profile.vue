@@ -408,12 +408,6 @@ export default {
     }
   },
   mounted () {
-    window.addEventListener('beforeunload', (event) => {
-      const  confirmationMessage = "\o/"
-
-      event.returnValue = confirmationMessage
-      return confirmationMessage;
-    })
     this.$nextTick(() => {
       window.refs = this.$refs
       this.loading = false

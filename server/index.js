@@ -8,6 +8,7 @@ import redisStore from 'connect-redis'
 import errHandler from './middleware/errHandler'
 
 import userRouter from './router/user'
+import folderRouter from './router/folder'
 import articleRouter from './router/article'
 import profileRouter from './router/profile'
 import uploadRouter from './router/upload'
@@ -51,6 +52,7 @@ async function start () {
   }))
   app.use(userRouter)
   app.use(profileRouter)
+  app.use(folderRouter)
   app.use(articleRouter)
   app.use(uploadRouter)
   app.use(errHandler)

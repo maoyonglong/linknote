@@ -24,7 +24,6 @@ export const fullPage = (selector = '#page') => {
   }
 
   function setHeight (el) {
-    console.log(el)
     if (el) {
       el.style.height = window.innerHeight + 'px'
     }

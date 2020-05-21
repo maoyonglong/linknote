@@ -17,13 +17,13 @@ router.post('/api/folder/add', async (req, res) => {
   res.send({
     code: 0,
     msg: '添加文件夹成功！',
-    result: doc._id
+    result: doc._id.toString()
   })
 })
 
 router.post('/api/folder/del', async (req, res) => {
   const uid = ObjectId(req.session.uid)
-  const folderId = req.body.folderId
+  const folderId = ObjectId(req.body.folderId)
   const doc = folderModel.findOne({uid, _id: folderId})
   if (!doc) {
     res.send({
@@ -42,7 +42,7 @@ router.post('/api/folder/del', async (req, res) => {
 
 router.post('/api/folder/setPrivacy', async (req, res) => {
   const uid = ObjectId(req.session.uid)
-  const folderId = req.body.folderId
+  const folderId = ObjectId(req.body.folderId)
   const privacy = req.body.privacy
   await folderModel.updateOne({uid, folder_id: folderId}, { $set: { privacy } })
   res.send({
@@ -53,7 +53,7 @@ router.post('/api/folder/setPrivacy', async (req, res) => {
 
 router.post('/api/folder/rename', async (req, res) => {
   const uid = ObjectId(req.session.uid)
-  const folderId = req.body.folderId
+  const folderId = ObjectId(req.body.folderId)
   const name = req.body.name
   await folderModel.updateOne({uid, folder_id: folderId}, { $set: { name } })
   res.send({
@@ -62,16 +62,20 @@ router.post('/api/folder/rename', async (req, res) => {
   })
 })
 
-router.get('/api/folders/u/:uid', async (req, res) => {
-  const folderUid = ObjectId(req.params.uid)
-  const uid = req.session.uid
+router.get('/api/folders/u/:uid?', async (req, res) => {
+  const folderUidStr = req.params.uid
+  const uidStr = req.session.uid
   let docs
 
-  if (folderUid) {
+  console.log('uid')
+
+  if (folderUidStr) {
+    const folderUid = ObjectId(folderUidStr)
     docs = await folderModel.find({uid: folderUid})
     // 去除未发表的文件夹
     docs = docs.filter(doc => !doc.privacy)
-  } else if (uid) {
+  } else if (uidStr) {
+    const uid = ObjectId(uidStr)
     docs = await folderModel.find({uid})
   } else {
     res.send({
@@ -86,3 +90,5 @@ router.get('/api/folders/u/:uid', async (req, res) => {
     result: docs
   })
 })
+
+export default router
