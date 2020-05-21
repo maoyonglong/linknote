@@ -413,11 +413,13 @@ export default {
     },
     renameFolder (i) {
       let folder = this.getFolder(i)
+      let folderName
       folder.popTipVisible = false
       this.createInputConfirm({
         title: '文件夹重命名',
         placeholder: '请输入文件夹名称'
       }).then(name => {
+        folderName = name
         this.loading = true
         return this.$axios({
           url: '/api/folder/rename',
@@ -427,7 +429,7 @@ export default {
       }).then(res => {
         const data = res.data
         if (data.code === 0) {
-          folder.name = name
+          folder.name = folderName
           this.$Message.success(data.msg)
         } else {
           this.$Message.error(data.msg + '\n' + data.err.message)
@@ -471,11 +473,13 @@ export default {
     },
     renameFile (i) {
       let article = this.getFile(i)
+      let fileName
       article.popTipVisible = false
       this.createInputConfirm({
         title: '文件重命名',
         placeholder: '请输入文件名称'
       }).then((name) => {
+        fileName = name
         this.loading = true
         return this.$axios({
           url: '/api/article/rename',
@@ -485,7 +489,7 @@ export default {
       }).then(res => {
         const data = res.data
         if (data.code === 0) {
-          article.name = name
+          article.name = fileName
           this.$Message.success(data.msg)
         } else {
           this.$Message.error(data.msg + '\n' + data.err.message)
