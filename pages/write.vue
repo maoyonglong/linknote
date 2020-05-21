@@ -563,7 +563,32 @@ export default {
       })
     },
     selectFolder (i) {
+      const folder = this.getFolder(i)
       this.folderActiveIdx = i
+      this.loading = true
+      this.$axios({
+        url: '/api/articles',
+        method: 'get',
+        params: {folderId: folder.id}
+      }).then(res => {
+        const data = res.data
+        if (data.code === 0) {
+          const docs = data.result
+          docs.forEach(doc => {
+            doc.id = doc._id.toString()
+            doc.popTipVisible = false
+            delete doc._id
+            delete doc.folderId
+          })
+          folder.files = docs
+        } else {
+          this.$Message.error(data.msg + '\n' + data.err.message)
+        }
+      }).catch(err => {
+        this.$Message.error(err.message)
+      }).finally(() => {
+        this.loading = false
+      })
     },
     selectFile (i) {
       this.fileActiveIdx = i

@@ -206,13 +206,13 @@ router.get('/api/articles', async function (req, res) {
 
   if (folderId) {
     folderId = Types.ObjectId(folderId)
-    docs = await folderModel.aggregate([
+    docs = await articleModel.aggregate([
       {
         $lookup: {
-          from: 'articles',
-          localField: '_id',
-          foreignField: 'folder_id',
-          as: 'files'
+          from: 'folders',
+          localField: 'folder_id',
+          foreignField: '_id',
+          as: 'folders'
         }
       }
     ])
@@ -220,27 +220,14 @@ router.get('/api/articles', async function (req, res) {
     docs = await articleModel.find()
   }
 
-  console.log(folderId, docs)
+  console.log(JSON.stringify(docs, null, 2))
 
-  if (docs && docs.length > 0) {
-    // 查找该文件夹记录
-    folderDoc = docs.filter(doc => doc._id.toString() === folderId.toString())
-    console.log(folderDoc)
-    folderDoc = folderDoc.length === 1 ? folderDoc[0] : null
-    // 用户已登陆，需要判断是否作者；
-    // 如果不是作者，需要将私密文章筛掉
-    if (uidStr && folderDoc) {
-      if (uidStr !== folderDoc.uid.toString()) {
-        // folderDoc is {..., files: []}
-        docs = folderDoc.files.filter(file => !file.privacy)
-      } else {
-        docs = folderDoc.files
-      }
-    } else if (folderDoc) {
-      docs = folderDoc.files
-    } else {
-      docs = []
-    }
+  if (docs && docs.length) {
+    docs = docs.filter(doc => {
+      let flag = doc.folders.length && doc.folders[0]._id.toString() === folderId.toString()
+      delete doc.folders
+      return flag
+    })
   }
 
   res.send({
