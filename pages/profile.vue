@@ -44,6 +44,9 @@ export default {
           this.$Message.error('表单填写格式有误！')
         })
     }
+  },
+  mounted () {
+    this.$store.dispatch('setNotSave', true)
   }
 }
 </script>

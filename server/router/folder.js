@@ -70,8 +70,6 @@ router.get('/api/folders/u/:uid?', async (req, res) => {
   const uidStr = req.session.uid
   let docs
 
-  console.log('uid')
-
   if (folderUidStr) {
     const folderUid = ObjectId(folderUidStr)
     docs = await folderModel.find({uid: folderUid})

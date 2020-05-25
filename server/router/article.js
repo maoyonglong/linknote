@@ -244,20 +244,15 @@ router.get('/api/articles', async function (req, res) {
           foreignField: '_id',
           as: 'folders'
         }
+      },
+      {
+        $match: {
+          folder_id: folderId
+        }
       }
     ])
   } else {
     docs = await articleModel.find()
-  }
-
-  console.log(JSON.stringify(docs, null, 2))
-
-  if (docs && docs.length) {
-    docs = docs.filter(doc => {
-      let flag = doc.folders.length && doc.folders[0]._id.toString() === folderId.toString()
-      delete doc.folders
-      return flag
-    })
   }
 
   res.send({
@@ -308,8 +303,6 @@ router.get('/api/article/a/:aid?', async function (req, res) {
       }
     }
   ])
-
-  console.log(articleDocs)
 
   if (!articleDocs.length) {
     res.send({

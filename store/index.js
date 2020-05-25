@@ -2,7 +2,7 @@ export const state = () => ({
   uid: null,
   avatar: '/avatar.jpg',
   pname: '用户xxx',
-  notSave: true
+  notSave: false
 })
 
 export const getters = {

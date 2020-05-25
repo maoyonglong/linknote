@@ -18,7 +18,7 @@
           <img class="avatar" :src="avatar" :alt="pname">
           <Icon type="md-arrow-dropdown" />
           <ul class="absolute avatar-list" v-show="avatarListVisible">
-            <li><nuxt-link class="archor" to="/space/profile" @click.native.stop>个人中心</nuxt-link></li>
+            <li><nuxt-link class="archor" to="/space" @click.native.stop>个人中心</nuxt-link></li>
             <li @click="logout"><span class="archor">退出</span></li>
           </ul>
         </div>

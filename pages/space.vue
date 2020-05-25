@@ -5,61 +5,12 @@
       <v-header :isLogin="true"></v-header>
       <Layout style="overflow: hidden;">
         <Sider hide-trigger :style="{'overflow-y': 'scroll', background: '#fff', paddingTop: '60px', borderRight: '1px solid #dcdee2', position: 'fixed', height: '100%'}">
-          <Menu active-name="1-2" theme="light" width="auto" :open-names="['1']">
-            <Submenu name="1">
-              <template slot="title">
-                <Icon type="ios-navigate"></Icon>笔记
-              </template>
-              <MenuItem name="1-1">Option 1</MenuItem>
-              <MenuItem name="1-2">Option 2</MenuItem>
-              <MenuItem name="1-3">Option 3</MenuItem>
-            </Submenu>
-            <MenuItem name="2">
-              <nuxt-link to="/space/profile"><Icon type="ios-keypad"></Icon>个人设置</nuxt-link>
+          <Menu active-name="1" theme="light" width="auto">
+            <MenuItem name="1">
+              <nuxt-link class="archor" to="/space"><Icon type="ios-paper" class="icon" />笔记</nuxt-link>
             </MenuItem>
-            <Submenu name="1">
-              <template slot="title">
-                <Icon type="ios-navigate"></Icon>笔记
-              </template>
-              <MenuItem name="1-1">Option 1</MenuItem>
-              <MenuItem name="1-2">Option 2</MenuItem>
-              <MenuItem name="1-3">Option 3</MenuItem>
-            </Submenu>
             <MenuItem name="2">
-              <nuxt-link to="/space/profile"><Icon type="ios-keypad"></Icon>个人设置</nuxt-link>
-            </MenuItem>
-            <Submenu name="1">
-              <template slot="title">
-                <Icon type="ios-navigate"></Icon>笔记
-              </template>
-              <MenuItem name="1-1">Option 1</MenuItem>
-              <MenuItem name="1-2">Option 2</MenuItem>
-              <MenuItem name="1-3">Option 3</MenuItem>
-            </Submenu>
-            <MenuItem name="2">
-              <nuxt-link to="/space/profile"><Icon type="ios-keypad"></Icon>个人设置</nuxt-link>
-            </MenuItem>
-            <Submenu name="1">
-              <template slot="title">
-                <Icon type="ios-navigate"></Icon>笔记
-              </template>
-              <MenuItem name="1-1">Option 1</MenuItem>
-              <MenuItem name="1-2">Option 2</MenuItem>
-              <MenuItem name="1-3">Option 3</MenuItem>
-            </Submenu>
-            <MenuItem name="2">
-              <nuxt-link to="/space/profile"><Icon type="ios-keypad"></Icon>个人设置</nuxt-link>
-            </MenuItem>
-            <Submenu name="1">
-              <template slot="title">
-                <Icon type="ios-navigate"></Icon>笔记
-              </template>
-              <MenuItem name="1-1">Option 1</MenuItem>
-              <MenuItem name="1-2">Option 2</MenuItem>
-              <MenuItem name="1-3">Option 3</MenuItem>
-            </Submenu>
-            <MenuItem name="2">
-              <nuxt-link to="/space/profile"><Icon type="ios-keypad"></Icon>个人设置</nuxt-link>
+              <nuxt-link class="archor" to="/space/profile"><Icon type="ios-keypad" class="icon" ></Icon>个人设置</nuxt-link>
             </MenuItem>
           </Menu>
         </Sider>
@@ -115,7 +66,20 @@ export default {
   }
 }
 
+.icon {
+  margin-right: 6px;
+}
+
+.archor {
+  color: black;
+}
+
 .ivu-menu-vertical.ivu-menu-light:after {
   display: none;
+}
+
+.ivu-menu-item-selected .archor {
+  color: $activeColor;
+  font-weight: bold;
 }
 </style>

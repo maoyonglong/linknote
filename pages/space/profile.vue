@@ -28,6 +28,11 @@ export default {
   components: {
     VProfile
   },
+  watch: {
+    sure: function (val) {
+      this.$store.dispatch('setNotSave', !val)
+    }
+  },
   mounted () {
     this.$axios.get('/api/profile/self')
       .then(res => {

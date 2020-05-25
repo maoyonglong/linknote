@@ -75,7 +75,7 @@
       >
         <div class="toolbar" slot="toolbar">
           <Button type="info" @click="setAnswer">
-            <Icon type="md-cloud-upload" />
+            <Icon type="ios-notifications-outline" />
             设置答案区
           </Button>
           <Button type="primary" @click="publish">
@@ -264,7 +264,9 @@ export default {
   },
   computed: {
     normalizeContent () {
-      return this.content.replace(/\[\[(.*?)\]\]/g, '<span class="answer"><span class="text">$1</span></span>')
+      return this.content ?
+        this.content.replace(/\[\[(.*?)\]\]/g, '<span class="answer"><span class="text">$1</span></span>') :
+        ''
     }
   },
   methods: {
@@ -344,8 +346,14 @@ export default {
 
       return onOk ? show(onOk, onCancel) : new Promise((resolve, reject) => show(resolve, reject))
     },
+    resetFile () {
+      this.content = ''
+      this.title = '文章' + new Date().getTime()
+      this.assets = []
+    },
     addFile () {
       let fileName = ''
+      this.resetFile()
       this.createInputConfirm({
         title: '创建文件',
         placeholder: '请输入文件的名字'
@@ -358,7 +366,7 @@ export default {
           method: 'post',
           data: {
             doctype: this.doctype,
-            content: this.normalizeContent,
+            content: this.content,
             title: this.title,
             folderId: folder.id,
             name,
@@ -375,6 +383,8 @@ export default {
           const len = folder.files.push({
             id: data.result,
             name: fileName,
+            title: this.title,
+            content: this.content,
             folderId: folder.id,
             doctype: this.doctype,
             assets: this.assets,
@@ -621,6 +631,7 @@ export default {
         const data = res.data
         if (data.code === 0) {
           this.$Message.success(data.msg)
+          this.$store.dispatch('setNotSave', false)
         } else {
           this.$Message.error(data.msg + '\n' + data.err.message)
         }
@@ -713,6 +724,7 @@ export default {
       this.fileActiveIdx = i
     },
     onEditorChange ({editor, html, text}) {
+      this.$store.dispatch('setNotSave', true)
       this.content = html
     },
     imgHandler () {
@@ -771,6 +783,10 @@ export default {
     Size.whitelist = sizes
     Quill.register(Font, true)
     Quill.register(Size, true)
+    this.$nextTick(() => {
+      // 由于初始化编辑器时会触发一次change事件，所以需要在之后将notSave设置为false
+      this.$store.dispatch('setNotSave', false)
+    })
   }
 }
 </script>
