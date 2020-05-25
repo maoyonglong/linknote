@@ -353,12 +353,12 @@ export default {
     },
     addFile () {
       let fileName = ''
-      this.resetFile()
       this.createInputConfirm({
         title: '创建文件',
         placeholder: '请输入文件的名字'
       }).then(name => {
         fileName = name
+        this.resetFile()
         const folder = this.folders[this.folderActiveIdx]
         this.loading = true
         return this.$axios({
@@ -448,7 +448,8 @@ export default {
       return this.getFiles(folderIdx)[i]
     },
     getFiles (i) {
-      return this.getFolder(i).files
+      const folder = this.getFolder(i)
+      return folder ? folder.files : []
     },
     getActiveFile () {
       return this.getFiles()[this.fileActiveIdx]

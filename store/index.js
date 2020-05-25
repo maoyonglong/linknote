@@ -1,6 +1,6 @@
 export const state = () => ({
   uid: null,
-  avatar: '/avatar.jpg',
+  avatar: '/avatar.png',
   pname: '用户xxx',
   notSave: false
 })
@@ -24,17 +24,21 @@ export const actions = {
   setNotSave ({commit}, payload) {
     commit('setNotSave', payload)
   },
+  logout ({commit}) {
+    commit('logout')
+  },
   async nuxtServerInit ({ dispatch  }, { req, $axios }) {
     const uid = req.session.uid
-
     if (!uid) return
 
     dispatch('setUid', uid)
 
-    const profile = await $axios.get('/api/profile/self')
-    const result = profile.data.result
-    dispatch('setPname', result.pname)
-    dispatch('setAvatar', result.avatar)
+    try {
+      const profile = await $axios.get('/api/profile/self')
+      const result = profile.data.result
+      dispatch('setPname', result.pname)
+      dispatch('setAvatar', result.avatar)
+    } catch (err) {}
   }
 }
 
@@ -50,5 +54,11 @@ export const mutations = {
   },
   setNotSave (state, payload) {
     state.notSave = payload
+  },
+  logout (state) {
+    state.uid = null,
+    state.avatar = '/avatar.png',
+    state.pname = '用户xxx',
+    state.notSave = false
   }
 }

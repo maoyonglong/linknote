@@ -19,7 +19,8 @@
           <Icon type="md-arrow-dropdown" />
           <ul class="absolute avatar-list" v-show="avatarListVisible">
             <li><nuxt-link class="archor" to="/space" @click.native.stop>个人中心</nuxt-link></li>
-            <li @click="logout"><span class="archor">退出</span></li>
+            <li @click.stop="changeUser"><span class="archor">切换账号</span></li>
+            <li @click.stop="logout"><span class="archor">退出</span></li>
           </ul>
         </div>
         <Button type="info" class="write-btn" @click="toWrite">写笔记</Button>
@@ -54,25 +55,43 @@ export default {
     }
   },
   methods: {
-    logout (event) {
-      event.stopPropagation()
-      this.loading = true
-      this.$axios.post('/api/logout')
-        .then(res => {
-          if (res.data.code === 0) {
-            this.$Message.success({
-              content: '退出成功！',
-              onClose: () => {
-                this.$router.replace('/login')
-              }
-            })
-          } else {
-            this.$Message.error('退出失败！')
-          }
-        }).catch(err => {
-          this.$Message.error(err.msg)
-        }).finally(() => {
-          this.loading = false
+    logoutFn () {
+      return new Promise((resolve, reject) => {
+        this.loading = true
+        this.$axios.post('/api/logout')
+          .then(res => {
+            if (res.data.code === 0) {
+              this.$Message.success({
+                content: '退出成功！',
+                onClose: () => {
+                  this.$store.dispatch('logout')
+                  resolve()
+                }
+              })
+            } else {
+              reject()
+            }
+          }).catch(err => {
+            this.$Message.error(err.msg)
+          }).finally(() => {
+            this.loading = false
+          })
+        })
+    },
+    logout () {
+      this.logoutFn()
+        .then(() => {
+          this.$router.replace('/')
+        }).catch(() => {
+          this.$Message.error('退出失败！')
+        })
+    },
+    changeUser () {
+      this.logoutFn()
+        .then(() => {
+          this.$router.replace('/login')
+        }).catch(() => {
+          this.$Message.error('退出失败！')
         })
     },
     toWrite () {

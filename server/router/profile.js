@@ -96,7 +96,6 @@ router.post('/api/profile/update', async function (req, res) {
 })
 
 router.get('/api/profile/u/:uid', async function (req, res) {
-  console.log('uid')
   const uid = req.params.uid
   const doc = await profileModel.findOne({ uid: Types.ObjectId(uid) })
   if (doc) {
@@ -106,7 +105,11 @@ router.get('/api/profile/u/:uid', async function (req, res) {
       result: doc
     })
   } else {
-    res.status(404).send()
+    res.send({
+      code: -1,
+      msg: '未填写任何个人信息',
+      err: new Error('not profile.')
+    })
   }
 })
 

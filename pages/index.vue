@@ -27,7 +27,6 @@ export default {
       this.$Message.error(errorTip)
       return
     }
-    console.log(this.$store.getters.isLogin)
     if (this.$store.getters.isLogin && this.$store.state.pname === '用户xxx') {
       this.$axios.get('/api/profile/self')
         .then(res => {
