@@ -23,8 +23,22 @@ export default {
     VHeader
   },
   mounted () {
-    if (errorTip) {
+    if (this.errorTip) {
       this.$Message.error(errorTip)
+      return
+    }
+    console.log(this.$store.getters.isLogin)
+    if (this.$store.getters.isLogin && this.$store.state.pname === '用户xxx') {
+      this.$axios.get('/api/profile/self')
+        .then(res => {
+          const data = res.data
+          if (data.code === 0) {
+            const result = data.result
+            this.$store.dispatch('setPname', result.pname)
+            this.$store.dispatch('setAvatar', result.avatar)
+          }
+        })
+
     }
   }
 }

@@ -10,7 +10,7 @@
       <div class="flex center-vert" v-if="isLogin">
         <div
           class="avatar-wrap archor flex center-vert"
-          :style="{'backgroundColor': avatarListVisible ? '#f9f9f9' : 'transparent'}"
+          :style="{'backgroundColor': avatarListVisible ? '#f9f9f9' : 'transparent', 'display': 'flex'}"
           @mouseenter="showAvatarList"
           @mouseleave="hideAvatarList"
           @click="toSpace"
@@ -52,9 +52,6 @@ export default {
       avatarListVisible: false,
       loading: false
     }
-  },
-  asyncData ({ $axios }) {
-    $axios.get('')
   },
   methods: {
     logout (event) {

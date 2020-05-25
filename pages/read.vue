@@ -32,19 +32,47 @@ export default {
   components: {
     VHeader
   },
+  async asyncData ({route, app}) {
+    const aid = route.query.aid
+    if (!aid) return {}
+    try {
+      const res = await app.$axios({
+        url: `/api/article/a/${aid}`,
+        method: 'get'
+      })
+      const data = res.data
+      if (data.code === 0) {
+        const result = data.result
+        return {
+          article: {
+            content: result.content,
+            title: result.title
+          },
+          author: {
+            avatar: result.author.avatar,
+            date: result.date,
+            name: result.author.uname,
+            id: result.author.uid
+          }
+        }
+      }
+    } catch (err) {
+      return {}
+    }
+  },
   data () {
     return {
       header: {
-        isLogin: true
+        isLogin: this.$store.getters.isLogin
       },
       article: {
-        title: '文章标题',
-        content: '<p>文章内容</p>'
+        title: '',
+        content: ''
       },
       author: {
         avatar: '/avatar.jpg',
         name: 'author',
-        date: '2020.5.1 15:32:00',
+        date: '',
         id: ''
       }
     }

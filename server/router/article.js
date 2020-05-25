@@ -38,7 +38,6 @@ router.post('/api/article/del', async function (req, res) {
   }
 
   await doc.remove()
-  await folderDoc.remove()
 
   res.send({
     code: 0,
@@ -189,13 +188,44 @@ router.post('/api/article/update', async function (req, res) {
     docObj[item] = req.body[item] || doc[item]
   })
 
-  const newDoc = new articleModel(docObj)
-
-  await doc.update(newDoc)
+  await articleModel.updateOne({_id: articleId}, docObj)
 
   res.send({
     code: 0,
     msg: '文章更新成功！',
+  })
+})
+
+router.post('/api/article/publish', async function (req, res) {
+  const uid = Types.ObjectId(req.session.uid)
+  const articleId = Types.ObjectId(req.body.articleId)
+  const doc = await articleModel.findById(articleId)
+
+  if (!doc) {
+    res.send({
+      code: -1,
+      msg: '文章不存在！',
+      err: new Error('no found.')
+    })
+    return
+  }
+
+  const folderDoc = await folderModel.findOne({uid, _id: doc.folder_id})
+
+  if (!folderDoc) {
+    res.send({
+      code: -1,
+      msg: '无权改写该文章！',
+      err: new Error('no right.')
+    })
+    return
+  }
+
+  await articleModel.updateOne({_id: articleId}, {publish: true})
+
+  res.send({
+    code: 0,
+    msg: '文章发布成功！'
   })
 })
 
@@ -241,13 +271,47 @@ router.get('/api/article/a/:aid?', async function (req, res) {
   const uidStr = req.session.uid
   let aid = req.params.aid
 
-  if (aid) return
+  if (!aid) {
+    res.end()
+    return
+  }
 
   aid = Types.ObjectId(aid)
 
-  const doc = await articleModel.findById(aid)
+  // const articleDoc = await articleModel.findById(aid)
+  const articleDocs = await articleModel.aggregate([
+    {
+      $lookup: {
+        from: 'folders',
+        localField: 'folder_id',
+        foreignField: '_id',
+        as: 'folder'
+      }
+    },
+    {
+      $lookup: {
+        from: 'profiles',
+        localField: 'folder.uid',
+        foreignField: 'uid',
+        as: 'author'
+      }
+    },
+    {
+      $unwind: '$author'
+    },
+    {
+      $unwind: '$folder'
+    },
+    {
+      $match: {
+        '_id': aid
+      }
+    }
+  ])
 
-  if (!doc) {
+  console.log(articleDocs)
+
+  if (!articleDocs.length) {
     res.send({
       code: -1,
       msg: '文章不存在',
@@ -256,8 +320,10 @@ router.get('/api/article/a/:aid?', async function (req, res) {
     return
   }
 
+  const articleDoc = articleDocs[0]
+
   // 是否私有，私有才判断是否作者
-  if (doc.privacy) {
+  if (articleDoc.privacy) {
     if (!uidStr) {
       res.send({
         code: -1,
@@ -266,21 +332,38 @@ router.get('/api/article/a/:aid?', async function (req, res) {
       })
       return
     }
-    const folderDoc = await folderModel.findOne({_id: doc.folder_id, uid: Types.ObjectId(uidStr)})
-    if (!folderDoc) {
-      res.send({
-        code: -1,
-        msg: '无权访问该文章！',
-        err: new Error('no right.')
-      })
-      return
-    }
+    // const folderDoc = await folderModel.findOne({_id: doc.folder_id, uid: Types.ObjectId(uidStr)})
+    // doc = await folderModel.aggregate([
+    //   {
+    //     $lookup: {
+    //       from: 'users',
+    //       localField: 'uid',
+    //       foreignField: '_id',
+    //       as: 'author'
+    //     }
+    //   },
+    //   {
+    //     $match: {
+    //       'author._id': Types.ObjectId(uidStr),
+    //       '_id': doc.folder_id
+    //     }
+    //   }
+    // ])
+    // console.log(doc)
+    // if (!doc) {
+    //   res.send({
+    //     code: -1,
+    //     msg: '无权访问该文章！',
+    //     err: new Error('no right.')
+    //   })
+    //   return
+    // }
   }
 
   res.send({
     code: 0,
     msg: '查看文章成功！',
-    result: doc
+    result: articleDoc
   })
 })
 

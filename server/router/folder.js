@@ -1,5 +1,6 @@
 import {Router} from 'express'
 import folderModel from '../model/folder'
+import articleModel from '../model/article'
 import {Types} from 'mongoose'
 
 const router = new Router()
@@ -24,8 +25,8 @@ router.post('/api/folder/add', async (req, res) => {
 router.post('/api/folder/del', async (req, res) => {
   const uid = ObjectId(req.session.uid)
   const folderId = ObjectId(req.body.folderId)
-  const doc = folderModel.findOne({uid, _id: folderId})
-  if (!doc) {
+  const folderDoc = folderModel.findOne({uid, _id: folderId})
+  if (!folderDoc) {
     res.send({
       code: -1,
       msg: '文件夹不存在！',
@@ -33,7 +34,9 @@ router.post('/api/folder/del', async (req, res) => {
     })
     return
   }
-  await doc.remove()
+  await folderDoc.remove()
+  // 同时要删除对应的文件
+  await articleModel.deleteMany({folder_id: folderId})
   res.send({
     code: 0,
     msg: '删除文件夹成功！'

@@ -1,6 +1,6 @@
 <template>
   <div id="page" class="flex" style="overflow: hidden;">
-    <div class="flex">
+    <div class="flex" v-show="isShowTree">
       <div class="relative">
         <div class="top-btn-wrap">
           <nuxt-link to="/">
@@ -25,7 +25,7 @@
               <i class="iconfont icon-folder">&#xe80c;</i>
               <span>{{v.name}}</span>
             </div>
-            <Poptip placement="bottom" v-model="v.popTipVisible">
+            <Poptip placement="bottom" v-model="v.popTipVisible" @click.stop>
               <i class="iconfont">&#xe6bb;</i>
               <ul class="pop-list" slot="content">
                 <li class="pop-item" @click.stop="renameFolder(i)">重命名</li>
@@ -64,36 +64,42 @@
         </div>
       </div>
     </div>
-    <div class="relative flex-grow">
+    <div class="relative flex-grow" :style="`width: ${isShowTree ? 'auto' : '50%'};`">
       <quill-editor
         class="quill-editor"
         v-model="content"
+        v-show="fileActiveIdx >= 0"
         ref="myQuillEditor"
         @change="onEditorChange($event)"
         :options="editorOption"
       >
         <div class="toolbar" slot="toolbar">
-          <Button type="primary">
+          <Button type="info" @click="setAnswer">
+            <Icon type="md-cloud-upload" />
+            设置答案区
+          </Button>
+          <Button type="primary" @click="publish">
             <Icon type="md-cloud-download" />
             发布文章
           </Button>
-          <Button type="info">
+          <Button type="info" @click="saveFile">
             <Icon type="md-cloud-upload" />
             保存
           </Button>
-          <Button type="error">
+          <Button type="error" @click="delFile(fileActiveIdx)">
             <Icon type="md-trash" />
             删除
           </Button>
-          <Button type="success">
+          <Button type="success" @click="togglePreview">
             <Icon type="md-search" />
-            预览
+            {{isShowTree ? '预览' : '退出预览'}}
           </Button>
           <div class="title-wrap">
             <Input placeholder="请输入标题" v-model="title" />
           </div>
         </div>
       </quill-editor>
+      <div v-show="fileActiveIdx < 0" style="background-color: #fcfaf2; height: 100%;"></div>
       <Spin fix v-if="loading"></Spin>
       <Upload
         accept="image/*"
@@ -103,6 +109,9 @@
         v-show="false"
       >
       </Upload>
+    </div>
+    <div class="flex-grow preview" v-show="!isShowTree" style="width: 50%; height: 100%;">
+      <article v-html="normalizeContent"></article>
     </div>
   </div>
 </template>
@@ -142,6 +151,7 @@ export default {
   data () {
     const self = this
     return {
+      isShowTree: true,
       doctype: 'html',
       title: '文章' + new Date().getTime(),
       content: '',
@@ -244,7 +254,29 @@ export default {
     }
     return result
   },
+  watch: {
+    'folderActiveIdx': function () {
+      this.setArticleInfo()
+    },
+    'fileActiveIdx': function () {
+      this.setArticleInfo()
+    }
+  },
+  computed: {
+    normalizeContent () {
+      return this.content.replace(/\[\[(.*?)\]\]/g, '<span class="answer"><span class="text">$1</span></span>')
+    }
+  },
   methods: {
+    setAnswer () {
+      const Quill = this.$refs.myQuillEditor.quill
+      const range = Quill.getSelection()
+      if (range && range.length) {
+        const text = Quill.getText(range.index, range.length)
+        Quill.insertText(range.index + range.length, ']]')
+        Quill.insertText(range.index, '[[')
+      }
+    },
     createInputConfirm (options) {
       const title = options.title || ''
       const onOk = options.onOk
@@ -326,7 +358,7 @@ export default {
           method: 'post',
           data: {
             doctype: this.doctype,
-            content: this.content,
+            content: this.normalizeContent,
             title: this.title,
             folderId: folder.id,
             name,
@@ -457,7 +489,11 @@ export default {
           this.folders.splice(i, 1)
           // 如果是选中的项要重置选中项
           if (this.folderActiveIdx === i) {
-            this.selectFile(0)
+            if (this.folders.length >= 0) {
+              this.selectFolder(0)
+            } else {
+              this.folderActiveIdx = -1
+            }
           }
           this.$Message.success(data.msg)
         } else {
@@ -516,7 +552,7 @@ export default {
         if (data.code === 0) {
           this.getFiles().splice(this.fileActiveIdx, 1)
           if (i === this.fileActiveIdx) {
-            this.selectFile(0)
+            this.selectFile(-1)
           }
           this.$Message.success(data.msg)
         } else {
@@ -566,9 +602,82 @@ export default {
         this.loading = false
       })
     },
+    // 重点
+    saveFile () {
+      const file = this.getActiveFile()
+      const data = {
+        articleId: file.id,
+        doctype: this.doctype,
+        title: this.title,
+        content: this.normalizeContent,
+        assets: this.assets
+      }
+      this.loading = true
+      this.$axios({
+        url: '/api/article/update',
+        method: 'post',
+        data
+      }).then(res => {
+        const data = res.data
+        if (data.code === 0) {
+          this.$Message.success(data.msg)
+        } else {
+          this.$Message.error(data.msg + '\n' + data.err.message)
+        }
+      }).catch(err => {
+        this.$Message.error(err.message)
+      }).finally(() => {
+        this.loading = false
+      })
+    },
+    togglePreview () {
+      this.isShowTree = !this.isShowTree
+    },
+    publish () {
+      const file = this.getActiveFile()
+      this.loading = true
+      this.$axios({
+        url: '/api/article/publish',
+        method: 'post',
+        data: {
+          articleId: file.id
+        }
+      }).then(res => {
+        const data = res.data
+        if (data.code === 0) {
+          this.$Message.success({
+            content: data.msg,
+            onClose: () => {
+              this.$Modal.confirm({
+                content: '发布成功，是否查看文章？',
+                onOk: () => {
+                  this.$router.push({
+                    path: '/read',
+                    query: {
+                      aid: file.id
+                    }
+                  })
+                }
+              })
+            }
+          })
+        } else {
+          this.$Message.error(data.msg + '\n' + data.err.message)
+        }
+      }).catch(err => {
+        this.$Message.error(err.message)
+      }).finally(() => {
+        this.loading = false
+      })
+    },
     selectFolder (i) {
       const folder = this.getFolder(i)
-      this.folderActiveIdx = i
+      // 如果已经获取过
+      if (folder.files.length) {
+        this.folderActiveIdx = i
+        this.fileActiveIdx = 0
+        return
+      }
       this.loading = true
       this.$axios({
         url: '/api/articles',
@@ -585,6 +694,12 @@ export default {
             delete doc.folderId
           })
           folder.files = docs
+          this.folderActiveIdx = i
+          if (docs.length > 0) {
+            this.fileActiveIdx = 0
+          } else {
+            this.fileActiveIdx = -1
+          }
         } else {
           this.$Message.error(data.msg + '\n' + data.err.message)
         }
@@ -634,11 +749,20 @@ export default {
       })
 
       return false
+    },
+    setArticleInfo () {
+      const activeFile = this.getActiveFile()
+      if (!activeFile) return
+      this.content = activeFile.content
+      this.assets = activeFile.assets
+      this.title = activeFile.title
+      this.doctype = activeFile.doctype
     }
   },
   mounted () {
     fullPage()
     this.loading = false
+    this.setArticleInfo()
     restHeight('.ql-container')
     const Quill = require('quill')
     const Font = Quill.import('formats/font')
@@ -755,5 +879,27 @@ export default {
 
 .ql-editor .ql-video {
   max-width: 480px;
+}
+
+.preview {
+  padding: 40px;
+  background-color: #fcfaf2;
+  border-left: 1px solid #d9d9d9;
+  overflow: auto;
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    margin-bottom: 20px;
+    font-size: 26px;
+    color: inherit;
+  }
+  ul {
+    list-style: disc;
+    word-break: break-word;
+    margin: -5px 0 20px 20px;
+  }
 }
 </style>
