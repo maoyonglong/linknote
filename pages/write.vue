@@ -23,7 +23,7 @@
           >
             <div class="flex center-vert">
               <i class="iconfont icon-folder">&#xe80c;</i>
-              <span>{{v.name}}</span>
+              <span class="folder-name">{{v.name}}</span>
             </div>
             <Poptip placement="bottom" v-model="v.popTipVisible" @click.stop>
               <i class="iconfont">&#xe6bb;</i>
@@ -51,7 +51,7 @@
           >
             <div class="flex center-vert">
               <i class="iconfont icon-file">&#xe679;</i>
-              <span>{{v.name}}</span>
+              <span class="file-name">{{v.name}}</span>
             </div>
             <Poptip placement="bottom" v-model="v.popTipVisible">
               <i class="iconfont">&#xe6bb;</i>
@@ -111,7 +111,7 @@
       </Upload>
     </div>
     <div class="flex-grow preview" v-show="!isShowTree" style="width: 50%; height: 100%;">
-      <article v-html="normalizeContent"></article>
+      <article ref="preview" v-html="normalizeContent"></article>
     </div>
   </div>
 </template>
@@ -166,7 +166,7 @@ export default {
           toolbar: {
             container: [
               ['bold', 'italic', 'underline', 'strike'],        // toggled buttons
-              ['blockquote', 'code-block'],
+              ['blockquote'], // 'code-block'
               ['image'],
 
               [{ 'header': 1 }, { 'header': 2 }],               // custom button values
@@ -264,12 +264,23 @@ export default {
   },
   computed: {
     normalizeContent () {
-      return this.content ?
-        this.content.replace(/\[\[(.*?)\]\]/g, '<span class="answer"><span class="text">$1</span></span>') :
-        ''
+      if (!this.content) return ''
+      return this.content.replace(/\[\[(.*?)\]\]/g, function (match) {
+        let str = match.substring(2, match.length - 2)
+        let hasImage = /<img\s+.*?>/.test(str)
+        return `
+          <span class="answer${hasImage ? ' answer-block' : ''}"><span class="answer-content">${str}</span></span>
+        `.trim()
+      })
     }
   },
   methods: {
+    decodeContent (content) {
+      const answerRe = new RegExp('<span class="answer.*?"><span class="answer-content">(.*?)</span></span>', 'g')
+      return content ?
+          content.replace(answerRe, '\[\[$1\]\]') :
+        ''
+    },
     setAnswer () {
       const Quill = this.$refs.myQuillEditor.quill
       const range = Quill.getSelection()
@@ -684,6 +695,8 @@ export default {
     },
     selectFolder (i) {
       const folder = this.getFolder(i)
+      const file = this.getActiveFile()
+      file.content = this.content
       // 如果已经获取过
       if (folder.files.length) {
         this.folderActiveIdx = i
@@ -722,6 +735,7 @@ export default {
       })
     },
     selectFile (i) {
+      this.saveFileInfo()
       this.fileActiveIdx = i
     },
     onEditorChange ({editor, html, text}) {
@@ -763,13 +777,20 @@ export default {
 
       return false
     },
+    saveFileInfo () {
+      const activeFile = this.getActiveFile()
+      activeFile.content = this.normalizeContent
+      activeFile.assets = this.assets
+      activeFile.title = this.title
+      activeFile.doctype = this.doctype
+    },
     setArticleInfo () {
       const activeFile = this.getActiveFile()
       if (!activeFile) return
-      this.content = activeFile.content
       this.assets = activeFile.assets
       this.title = activeFile.title
       this.doctype = activeFile.doctype
+      this.content = this.decodeContent(activeFile.content)
     }
   },
   mounted () {
@@ -809,6 +830,14 @@ export default {
   font-size: 20px;
   cursor: pointer;
 
+  .folder-name {
+    @extend .ellipsis;
+    width: 90px;
+  }
+  .file-name {
+    @extend .ellipsis;
+    width: 120px;
+  }
   &:hover,
   &.active {
     background-color: #ddd;

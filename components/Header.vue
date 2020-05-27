@@ -1,6 +1,7 @@
 <template>
   <header class="header flex center-vert">
     <div class="container flex">
+      <slot name="left"></slot>
       <nuxt-link class="archor link" to="/">首页</nuxt-link>
       <!-- <nuxt-link class="archor link" to="#">发现</nuxt-link> -->
       <a class="archor link" @click="$Modal.info({

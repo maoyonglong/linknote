@@ -6,6 +6,7 @@ import session from 'express-session'
 import bodyParser from 'body-parser'
 import redisStore from 'connect-redis'
 import errHandler from './middleware/errHandler'
+import auth from './middleware/auth'
 
 import userRouter from './router/user'
 import folderRouter from './router/folder'
@@ -46,6 +47,7 @@ async function start () {
   }))
   app.use(passport.initialize())
   app.use(passport.session())
+  app.use(auth())
   app.use(bodyParser.json())
   app.use(bodyParser.urlencoded({
     extended: false

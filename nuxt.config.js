@@ -13,7 +13,9 @@ module.exports = {
     ],
     link: [
       { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
-      { rel: 'stylesheet', type: 'text/css', href: 'https://cdn.bootcdn.net/ajax/libs/minireset.css/0.0.2/minireset.min.css' }
+      { rel: 'stylesheet', type: 'text/css', href: 'https://cdn.bootcdn.net/ajax/libs/minireset.css/0.0.2/minireset.min.css' },
+      { rel: 'stylesheet', type: 'text/css', href: 'https://cdn.bootcdn.net/ajax/libs/animate.css/4.1.0/animate.min.css' },
+      { rel: 'stylesheet', type: 'text/css', href: 'https://cdn.bootcdn.net/ajax/libs/highlight.js/10.0.3/styles/a11y-dark.min.css' }
     ]
   },
   /*
@@ -78,6 +80,12 @@ module.exports = {
   ** See https://axios.nuxtjs.org/options
   */
   axios: {
+  },
+  vue: {
+    config: {
+      productionTip: false,
+      devtools: true
+    }
   },
   /*
   ** Build configuration

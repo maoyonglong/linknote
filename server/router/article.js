@@ -1,6 +1,4 @@
 import {Router} from 'express'
-// import auth from '../middleware/auth'
-// import rbac from '../middleware/rbac'
 import {Types} from 'mongoose'
 import articleModel from '../model/article'
 import folderModel from '../model/folder'

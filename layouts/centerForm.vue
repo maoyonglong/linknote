@@ -27,6 +27,7 @@ $prefix: unquote("l-centerForm");
 
 .#{$prefix}-page {
   position: relative;
+  overflow: hidden;
   background-color: $bgColor;
   /deep/ .title {
     padding: 20px;
@@ -39,16 +40,12 @@ $prefix: unquote("l-centerForm");
 }
 
 .#{$prefix}-page-center {
-  position: absolute;
-  width: 400px;
-  height: 300px;
+  // position: absolute;
+  width: 450px;
   border-radius: 10px;
   box-shadow: 0 0 2px $shadowColor;
-  margin: auto;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  right: 0;
+  margin: 100px auto;
+  padding: 10px;
   background-color: #fff;
 }
 </style>

@@ -1,7 +1,9 @@
 import {Router} from 'express'
 import userModel from '../model/user'
+import roleModel from '../model/role'
 import bcrypt from 'bcrypt'
 import _ from 'lodash'
+import aclPromise from '../acl'
 
 const router = Router()
 
@@ -17,8 +19,11 @@ router.post('/api/login', async (req, res) => {
       err: new Error('custom error: this user is not existed.')
     })
   } else if (bcrypt.compareSync(pwd, userDoc.pwd)) {
+    const acl = await aclPromise
+    const roleDoc = await roleModel.findOne({uid: userDoc._id})
     const userIdStr = userDoc._id.toString()
     req.session.uid = userIdStr
+    await acl.addUserRoles(userIdStr, roleDoc.role)
 
     res.send({
       code: 0,
@@ -35,7 +40,9 @@ router.post('/api/login', async (req, res) => {
 })
 
 router.post('/api/logout',  (req, res) => {
-  req.session.destroy(function (err) {
+  const uidStr = req.session.uid
+  const role = req.session.role
+  req.session.destroy(async function (err) {
     if (err) {
       res.send({
         code: -1,
@@ -43,6 +50,8 @@ router.post('/api/logout',  (req, res) => {
       })
       return
     } else {
+      const acl = await aclPromise
+      await acl.removeUserRoles(uidStr, role)
       res.send({
         code: 0,
         msg: '退出成功！'
@@ -60,12 +69,18 @@ router.post('/api/register', async (req, res) => {
     uname,
     pwd
   })
-  const userIdStr = userDoc._id.toString()
+  const roleDoc = new roleModel({
+    uid: userDoc._id,
+    role: 'ordinary'
+  })
 
   await userDoc.save()
+  await roleDoc.save()
+
+  const userIdStr = userDoc._id.toString()
 
   req.session.uid = userIdStr
-
+  await acl.addUserRoles(userIdStr, 'ordinary')
   // const cloneUserDoc = Object.create(userDoc)
   // cloneUserDoc._id = userIdStr
 

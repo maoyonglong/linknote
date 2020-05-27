@@ -6,6 +6,17 @@
       <h2 class="subtitle">
         欢迎使用林克笔记
       </h2>
+      <Button
+        type="primary"
+        size="large"
+        style="font-size: 20px;"
+        @click="onStart"
+        @mouseover.native="onStartBtnOver()"
+        @mouseout.native="onStartBtnOut()"
+      >
+        <span>开始使用</span>
+        <Icon :class="['arrow', {active: isStartBtnOver}]" type="md-arrow-round-forward" style="margin-left: 10px" size="24"/>
+      </Button>
     </div>
   </div>
 </template>
@@ -14,19 +25,33 @@
 import Logo from '~/components/Logo.vue'
 import VHeader from '~/components/Header'
 
-let errorTip = null
-
 export default {
   layout: 'default',
   components: {
     Logo,
     VHeader
   },
-  mounted () {
-    if (this.errorTip) {
-      this.$Message.error(errorTip)
-      return
+  data () {
+    return {
+      isStartBtnOver: false
     }
+  },
+  methods: {
+    onStart () {
+      if (this.$store.getters.isLogin) {
+        this.$router.push('/write')
+      } else {
+        this.$router.push('/login')
+      }
+    },
+    onStartBtnOver () {
+      this.isStartBtnOver = true
+    },
+    onStartBtnOut () {
+      this.isStartBtnOver = false
+    }
+  },
+  mounted () {
     if (this.$store.getters.isLogin && this.$store.state.pname === '用户xxx') {
       this.$axios.get('/api/profile/self')
         .then(res => {
@@ -43,7 +68,11 @@ export default {
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
+/deep/ .ivu-btn > span {
+  display: flex;
+  align-items: center;
+}
 .wrap {
   margin: 0 auto;
   min-height: 100vh;
@@ -62,6 +91,7 @@ export default {
   letter-spacing: 1px;
 }
 .subtitle {
+  font-style: italic;
   font-weight: 300;
   font-size: 42px;
   color: #526488;
@@ -70,5 +100,11 @@ export default {
 }
 .links {
   padding-top: 15px;
+}
+.arrow {
+  transition: all 200ms;
+  &.active {
+    transform: translateX(10px);
+  }
 }
 </style>

@@ -15,7 +15,11 @@
           </Menu>
         </Sider>
         <Layout :style="{marginLeft: '200px'}">
-          <Content id="content" :style="{padding: '24px', paddingTop: '84px', minHeight: '280px', background: '#fff'}">
+          <Content
+            id="content"
+            class="animate__animated animate__fadeInTop"
+            :style="{padding: '24px', paddingTop: '84px', minHeight: '280px', background: '#fff'}"
+          >
             <nuxt-child></nuxt-child>
           </Content>
         </Layout>
