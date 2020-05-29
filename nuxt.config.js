@@ -100,7 +100,28 @@ module.exports = {
     extractCSS: {
       allChunks: true
     },
-    analyze: true,
+    // analyze: true,
+    // optimization: {
+    //   splitChunks: {
+    //     chunks: 'all',
+    //     automaticNameDelimiter: '.',
+    //     maxAsyncRequests: 7,
+    //     cacheGroups: {
+    //       iview: {
+    //         test: /node_modules[\\/]iview/,
+    //         chunks: 'all',
+    //         priority: 20,
+    //         name: true
+    //       },
+    //       quill: {
+    //         test: /node_modules[\\/]quill/,
+    //         chunks: 'all',
+    //         priority: 20,
+    //         name: true
+    //       }
+    //     }
+    //   }
+    // },
     /*
     ** You can extend webpack config here
     */
