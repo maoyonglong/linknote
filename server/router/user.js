@@ -23,6 +23,7 @@ router.post('/api/login', async (req, res) => {
     const roleDoc = await roleModel.findOne({uid: userDoc._id})
     const userIdStr = userDoc._id.toString()
     req.session.uid = userIdStr
+    req.session.role = roleDoc.role
     await acl.addUserRoles(userIdStr, roleDoc.role)
 
     res.send({
@@ -80,6 +81,7 @@ router.post('/api/register', async (req, res) => {
   const userIdStr = userDoc._id.toString()
 
   req.session.uid = userIdStr
+  req.session.role = 'ordinary'
   await acl.addUserRoles(userIdStr, 'ordinary')
   // const cloneUserDoc = Object.create(userDoc)
   // cloneUserDoc._id = userIdStr

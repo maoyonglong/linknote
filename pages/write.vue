@@ -696,6 +696,7 @@ export default {
     selectFolder (i) {
       const folder = this.getFolder(i)
       const file = this.getActiveFile()
+      if (!file) return
       file.content = this.content
       // 如果已经获取过
       if (folder.files.length) {

@@ -14,7 +14,7 @@ import articleRouter from './router/article'
 import profileRouter from './router/profile'
 import uploadRouter from './router/upload'
 
-import passport from 'passport'
+// import passport from 'passport'
 import redisClient from './redis/client'
 
 const app = express()
@@ -45,8 +45,8 @@ async function start () {
     resave: false,
     saveUninitialized: false
   }))
-  app.use(passport.initialize())
-  app.use(passport.session())
+  // app.use(passport.initialize())
+  // app.use(passport.session())
   app.use(auth())
   app.use(bodyParser.json())
   app.use(bodyParser.urlencoded({

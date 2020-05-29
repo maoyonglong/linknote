@@ -28,7 +28,6 @@ export const actions = {
     commit('logout')
   },
   async nuxtServerInit ({ dispatch  }, { req, $axios }) {
-    console.log('server')
     const uid = req.session.uid
     if (!uid) return
 

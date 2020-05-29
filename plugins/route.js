@@ -1,10 +1,8 @@
 export default ({
   app,
-  route,
-  redirect,
   store
 }) => {
-  app.router.beforeEach((to, from, next) => {
+  app.router.beforeEach(async (to, from, next) => {
     const toPath = to.path
     const fromPath = from.path
     if (

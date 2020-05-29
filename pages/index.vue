@@ -62,7 +62,6 @@ export default {
             this.$store.dispatch('setAvatar', result.avatar)
           }
         })
-
     }
   }
 }

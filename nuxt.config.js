@@ -64,6 +64,9 @@ module.exports = {
     // Doc: https://github.com/nuxt-community/eslint-module
     // '@nuxtjs/eslint-module'
   ],
+  router: {
+    middleware: 'auth'
+  },
   /*
   ** Nuxt.js modules
   */
@@ -94,6 +97,10 @@ module.exports = {
     vendor: [
       'vue-quill-editor'
     ],
+    extractCSS: {
+      allChunks: true
+    },
+    analyze: true,
     /*
     ** You can extend webpack config here
     */

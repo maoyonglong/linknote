@@ -58,5 +58,10 @@ export const ACL_CONFIG = [
 ]
 export const NEED_LOGIN = [
   '/write',
-  '/profile'
+  '/profile',
+  // '/space',
+  // '/read(\\?aid=\w+)?'
+]
+export const NOT_NEED_LOGIN = [
+  '/read(\\?aid=\w+)?'
 ]

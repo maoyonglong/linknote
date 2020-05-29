@@ -245,7 +245,7 @@ router.get('/api/articles', async function (req, res) {
       },
       {
         $match: {
-          folder_id: folderId
+          "folder_id": folderId
         }
       }
     ])

@@ -29,7 +29,9 @@ export default {
               this.$Message.success({
                 content: '提交成功！',
                 onClose: () => {
-                  this.$router.push('/')
+                  this.$store.dispatch('setNotSave', false)
+                  // this.$router.push('/')
+                  window.location.href = '/'
                 }
               })
             } else {
